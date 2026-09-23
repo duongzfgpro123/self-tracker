@@ -28,7 +28,13 @@
     doneButton.addEventListener("click", function () {
       const muscle = document.getElementById("muscle").value;
       const intensity = document.getElementById("intensity").value;
-      console.log(muscle, intensity);
+
+      const date = new Date().toLocaleDateString("en-CA");
+
+      // TODO: build the entry object using date, muscle and intensity
+      const entry = { date: date, muscle: muscle, intensity: intensity };
+
+      console.log(entry);
     });
   </script>
 </body>
