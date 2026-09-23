@@ -14,7 +14,6 @@
     <option value="legs">Legs</option>
   </select>
 
- 
   <select id="intensity">
     <option value="light">Light</option>
     <option value="medium">Medium</option>
@@ -22,5 +21,15 @@
   </select>
 
   <button id="done">Done</button>
+
+  <script>
+    const doneButton = document.getElementById("done");
+
+    doneButton.addEventListener("click", function () {
+      const muscle = document.getElementById("muscle").value;
+      const intensity = document.getElementById("intensity").value;
+      console.log(muscle, intensity);
+    });
+  </script>
 </body>
 </html>
