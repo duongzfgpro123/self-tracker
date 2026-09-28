@@ -28,16 +28,21 @@
 
     // Run this function every time the user clicks Done
     doneButton.addEventListener("click", function () {
-      // get muscle
       const muscle = document.getElementById("muscle").value;
       const intensity = document.getElementById("intensity").value;
-
       const date = new Date().toLocaleDateString("en-CA");
-
-      
       const entry = { date: date, muscle: muscle, intensity: intensity };
 
-      console.log(entry);
+      // Read the existing list from localStorage (or start with an empty list)
+      const saved = localStorage.getItem("entries");
+      const entries = saved ? JSON.parse(saved) : [];
+
+      entries.push(entry);
+
+      // Save the updated list back to localStorage as a string
+      localStorage.setItem("entries", JSON.stringify(entries));
+
+      console.log(entries);
     });
   </script>
 </body>
