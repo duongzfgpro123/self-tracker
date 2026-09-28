@@ -9,9 +9,7 @@
 - Stage 1: HTML page with muscle + intensity dropdowns
 - Stage 2: Done button reads both dropdown values
 - Stage 3a: Done button builds an entry object {date, muscle, intensity} and logs it to console
+- Stage 3b: entries are saved to localStorage and survive a page reload
 
 **Next**
-- Stage 3b: save entries to localStorage so they survive a page reload
-
-**Data shape**
-An entry looks like: { date: "2026-09-24", muscle: "chest", intensity: "light" }
+- Stage 4: show the saved history as a list on the page
