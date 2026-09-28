@@ -23,9 +23,12 @@
   <button id="done">Done</button>
 
   <script>
+    // Find the Done button so we can react when it is clicked
     const doneButton = document.getElementById("done");
 
+    // Run this function every time the user clicks Done
     doneButton.addEventListener("click", function () {
+      // get muscle
       const muscle = document.getElementById("muscle").value;
       const intensity = document.getElementById("intensity").value;
 
