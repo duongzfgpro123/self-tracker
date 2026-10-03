@@ -20,11 +20,29 @@
     <option value="heavy">Heavy</option>
   </select>
 
+  <h2>History</h2>
+  <ul id="history"></ul>
+
   <button id="done">Done</button>
 
   <script>
     // Find the Done button so we can react when it is clicked
     const doneButton = document.getElementById("done");
+
+    // Draw the saved entries as a list on the page
+    function renderHistory() {
+      const historyList = document.getElementById("history");
+      historyList.innerHTML = ""; // clear old items before redrawing
+
+      const saved = localStorage.getItem("entries");
+      const entries = saved ? JSON.parse(saved) : [];
+
+      entries.forEach(function (entry) {
+        const li = document.createElement("li");
+        li.textContent = entry.date + " - " + entry.muscle + " (" + entry.intensity + ")";
+        historyList.appendChild(li);
+      });
+    }
 
     // Run this function every time the user clicks Done
     doneButton.addEventListener("click", function () {
@@ -41,9 +59,12 @@
 
       // Save the updated list back to localStorage as a string
       localStorage.setItem("entries", JSON.stringify(entries));
+      renderHistory(); // redraw the list to include the entry we just added
 
       console.log(entries);
     });
+
+    renderHistory(); // show saved entries as soon as the page loads
   </script>
 </body>
 </html>
