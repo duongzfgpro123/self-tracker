@@ -31,7 +31,7 @@
     /* HOW TO UPDATE: change a status in ST (use exactly one of the 7 names below),
        and add notes in LOG. Do not edit anything else unless Claude plans a new task.
        Statuses: NOT STARTED, READY, IN PROGRESS, WAITING FOR USER, TESTING, BLOCKED, DONE */
-    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER"};
+    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER","M2-005":"WAITING FOR USER"};
     const LOG = {
       "M0-001":{done:"2026-10-04",notes:"Web app = index.html + README.md + .gitignore, no build step"},
       "M0-002":{done:"2026-10-04",notes:"Entry = {date, muscle, intensity}; JSON array in localStorage key 'entries'"},
@@ -40,7 +40,8 @@
       "M2-001":{done:"2026-10-04",test:"pass",notes:"Node v24.21.0, npm 11.19.0"},
       "M2-002":{done:"2026-10-04",files:"main.js, package.json, package-lock.json, .gitignore, README.md",test:"pass",notes:"Electron 44.5.1 opened index.html; two entries remained listed after closing and reopening."},
       "M2-003":{files:"main.js, preload.js",test:"pass",notes:"Secure BrowserWindow; appInfo bridge and undefined renderer require verified; Done entry saved and listed. Nonfatal disk/GPU cache permission warnings."},
-      "M2-004":{files:"src/main/main.js, src/preload/preload.js, src/renderer/index.html, src/shared/.gitkeep, assets/.gitkeep, package.json, README.md",test:"pass",notes:"Moved files with git mv; npm start opened the relocated page and Done saved and listed an entry."}
+      "M2-004":{files:"src/main/main.js, src/preload/preload.js, src/renderer/index.html, src/shared/.gitkeep, assets/.gitkeep, package.json, README.md",test:"pass",notes:"Moved files with git mv; npm start opened the relocated page and Done saved and listed an entry."},
+      "M2-005":{files:"assets/icon.png, src/main/main.js, README.md",test:"pass",notes:"Created 256x256 PNG placeholder; Windows reports small and large window icon handles; npm start and workout logging passed. Nonfatal disk/GPU cache permission warnings."}
     };
     /* Details are only written for tasks that are READY or next in line. */
     const D = {

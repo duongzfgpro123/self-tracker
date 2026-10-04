@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M2-004, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M2-005, add an app icon placeholder.
+- Stage 5 implementation through M2-005, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M2-006, add a navigation shell with empty sections.
