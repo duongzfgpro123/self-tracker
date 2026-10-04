@@ -31,7 +31,7 @@
     /* HOW TO UPDATE: change a status in ST (use exactly one of the 7 names below),
        and add notes in LOG. Do not edit anything else unless Claude plans a new task.
        Statuses: NOT STARTED, READY, IN PROGRESS, WAITING FOR USER, TESTING, BLOCKED, DONE */
-    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER","M2-005":"WAITING FOR USER","M2-006":"WAITING FOR USER","M2-007":"WAITING FOR USER","M2-008":"WAITING FOR USER"};
+    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER","M2-005":"WAITING FOR USER","M2-006":"WAITING FOR USER","M2-007":"WAITING FOR USER","M2-008":"WAITING FOR USER","M2-009":"WAITING FOR USER"};
     const LOG = {
       "M0-001":{done:"2026-10-04",notes:"Web app = index.html + README.md + .gitignore, no build step"},
       "M0-002":{done:"2026-10-04",notes:"Entry = {date, muscle, intensity}; JSON array in localStorage key 'entries'"},
@@ -44,7 +44,8 @@
       "M2-005":{files:"assets/icon.png, src/main/main.js, README.md",test:"pass",notes:"Created 256x256 PNG placeholder; Windows reports small and large window icon handles; npm start and workout logging passed. Nonfatal disk/GPU cache permission warnings."},
       "M2-006":{files:"src/renderer/index.html, src/renderer/styles.css, README.md",test:"pass",notes:"All 15 sections switched to matching pages; Workouts logging saved and listed an entry that remained after app restart."},
       "M2-007":{files:"src/main/logger.js, src/main/main.js, README.md",test:"pass",notes:"app.log created at userData/logs/app.log; start and temporary uncaught exception recorded with ISO timestamps; temporary throw removed. Logging failure was contained."},
-      "M2-008":{files:"package.json, test/smoke.test.js, README.md",test:"pass",notes:"npm test passes; temporarily setting main to a missing path made the smoke test fail as expected, then package.json was restored."}
+      "M2-008":{files:"package.json, test/smoke.test.js, README.md",test:"pass",notes:"npm test passes; temporarily setting main to a missing path made the smoke test fail as expected, then package.json was restored."},
+      "M2-009":{files:"src/renderer/index.html, src/renderer/renderer.js, README.md",test:"pass",notes:"Extracted scripts with comments to deferred renderer.js; no inline CSS remained. Fresh DevTools console clean, Workouts logger and restart persistence passed."}
     };
     /* Details are only written for tasks that are READY or next in line. */
     const D = {

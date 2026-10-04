@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M2-008, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M2-009, move web logic into the renderer folder.
+- Stage 5 implementation through M2-009, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M2-010, write ARCHITECTURE.md.
