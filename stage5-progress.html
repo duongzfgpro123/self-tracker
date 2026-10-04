@@ -31,7 +31,7 @@
     /* HOW TO UPDATE: change a status in ST (use exactly one of the 7 names below),
        and add notes in LOG. Do not edit anything else unless Claude plans a new task.
        Statuses: NOT STARTED, READY, IN PROGRESS, WAITING FOR USER, TESTING, BLOCKED, DONE */
-    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER","M2-005":"WAITING FOR USER","M2-006":"WAITING FOR USER","M2-007":"WAITING FOR USER","M2-008":"WAITING FOR USER","M2-009":"WAITING FOR USER","M2-010":"WAITING FOR USER","M3-001":"WAITING FOR USER","M3-002":"WAITING FOR USER","M3-003":"WAITING FOR USER"};
+    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE","M2-003":"WAITING FOR USER","M2-004":"WAITING FOR USER","M2-005":"WAITING FOR USER","M2-006":"WAITING FOR USER","M2-007":"WAITING FOR USER","M2-008":"WAITING FOR USER","M2-009":"WAITING FOR USER","M2-010":"WAITING FOR USER","M3-001":"WAITING FOR USER","M3-002":"WAITING FOR USER","M3-003":"WAITING FOR USER","M3-004":"WAITING FOR USER"};
     const LOG = {
       "M0-001":{done:"2026-10-04",notes:"Web app = index.html + README.md + .gitignore, no build step"},
       "M0-002":{done:"2026-10-04",notes:"Entry = {date, muscle, intensity}; JSON array in localStorage key 'entries'"},
@@ -49,7 +49,8 @@
       "M2-010":{files:"ARCHITECTURE.md, README.md",test:"pass",notes:"Documented current repo map, roles, security, localStorage, log path, run/test commands, and SQLite as planned pending M3-001; verified all documented repository paths exist."},
       "M3-001":{files:"ARCHITECTURE.md, README.md",test:"pass",notes:"Recorded decision to use node:sqlite DatabaseSync in the Electron main process; implementation remains planned pending M3-002 verification."},
       "M3-002":{files:"src/main/db/probe.js, src/main/main.js, test/sqlite-available.test.js, ARCHITECTURE.md, README.md",test:"pass",notes:"Verified node:sqlite in Electron 44.5.1; SQLite 3.53.4 logged at startup; npm test passed 2/2; no database dependency added."},
-      "M3-003":{files:"src/main/db/connection.js, src/main/main.js, test/connection.test.js, ARCHITECTURE.md, README.md",test:"pass",notes:"Opens :memory: after app readiness and closes before quit; log confirms both lifecycle events. Tests confirm foreign_keys=1, busy_timeout=5000, and close is idempotent."}
+      "M3-003":{files:"src/main/db/connection.js, src/main/main.js, test/connection.test.js, ARCHITECTURE.md, README.md",test:"pass",notes:"Opens :memory: after app readiness and closes before quit; log confirms both lifecycle events. Tests confirm foreign_keys=1, busy_timeout=5000, and close is idempotent."},
+      "M3-004":{files:"src/main/main.js, .gitignore, ARCHITECTURE.md, README.md",test:"pass",notes:"Database opens at userData/self-tracker.db, directory is created when missing, and full path is logged. Close log verified; second app start reopened the file. No .db file in repo."}
     };
     /* Details are only written for tasks that are READY or next in line. */
     const D = {

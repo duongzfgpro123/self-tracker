@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, dialog } = require("electron");
+const fs = require("node:fs");
 const path = require("node:path");
 const { createLogger } = require("./logger");
 const { getSqliteVersion } = require("./db/probe");
@@ -6,6 +7,7 @@ const { closeDatabase, openDatabase } = require("./db/connection");
 
 const logger = createLogger(() => app.getPath("userData"));
 let database;
+let databasePath;
 
 process.on("uncaughtException", error => {
   logger.logError("Uncaught exception", error);
@@ -39,8 +41,23 @@ function createWindow() {
 app.whenReady().then(() => {
   logger.logInfo("Application started");
   logger.logInfo("SQLite version", getSqliteVersion());
-  database = openDatabase(":memory:");
-  logger.logInfo("Database opened", { location: ":memory:" });
+  try {
+    const userDataPath = app.getPath("userData");
+    databasePath = path.join(userDataPath, "self-tracker.db");
+    logger.logInfo("Database path", databasePath);
+    fs.mkdirSync(userDataPath, { recursive: true });
+    database = openDatabase(databasePath);
+  } catch (error) {
+    logger.logError("Database open failed", error);
+    dialog.showErrorBox(
+      "Database Error",
+      `Could not open the database at ${databasePath || "the user data path"}.\n\n${error.message}`,
+    );
+    app.quit();
+    return;
+  }
+
+  logger.logInfo("Database opened", databasePath);
   createWindow();
 });
 
@@ -48,7 +65,7 @@ app.on("before-quit", () => {
   if (!database) return;
 
   closeDatabase(database);
-  logger.logInfo("Database closed");
+  logger.logInfo("Database closed", databasePath);
   database = null;
 });
 
