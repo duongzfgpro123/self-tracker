@@ -1,6 +1,10 @@
 # Self Tracker: standing rules for AI coding assistants
 Project: local-first Windows desktop fitness app (Electron, HTML/CSS/JS). The user and Claude plan and review; you write the code.
 
+## Language
+- Reply to the user in Vietnamese only.
+- Write all repository content (code, comments, docs, UI text, commit messages) in English.
+
 ## Before coding
 - Inspect existing code first. Reuse components. No duplicate functionality.
 - Follow the task's FILES lists exactly. Touch nothing else.
