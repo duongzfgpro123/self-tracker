@@ -5,7 +5,8 @@
   "description": "Self Tracker desktop app",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node --test"
   },
   "devDependencies": {
     "electron": "^44.5.1"
