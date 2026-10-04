@@ -1,5 +1,17 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
+const { createLogger } = require("./logger");
+
+const logger = createLogger(() => app.getPath("userData"));
+
+process.on("uncaughtException", error => {
+  logger.logError("Uncaught exception", error);
+  app.exit(1);
+});
+
+process.on("unhandledRejection", reason => {
+  logger.logError("Unhandled rejection", reason);
+});
 
 function createWindow() {
   const window = new BrowserWindow({
@@ -14,10 +26,17 @@ function createWindow() {
     },
   });
 
+  window.webContents.on("render-process-gone", (_event, details) => {
+    logger.logError("Renderer process gone", details);
+  });
+
   window.loadFile(path.join(__dirname, "../renderer/index.html"));
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  logger.logInfo("Application started");
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   app.quit();

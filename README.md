@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M2-006, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M2-007, add error logging to file.
+- Stage 5 implementation through M2-007, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M2-008, add npm scripts for start and test.
