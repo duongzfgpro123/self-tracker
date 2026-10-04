@@ -42,13 +42,15 @@
 - `src/shared/` is currently a placeholder directory; it contains only `.gitkeep` and has no shared runtime code yet.
 - `assets/icon.png` is the current app/window icon. `assets/.gitkeep` keeps the asset directory present in Git.
 - `src/main/logger.js` appends ISO-timestamped messages to `app.getPath("userData")/logs/app.log`, creating the logs directory when needed. Logging failures are caught so they do not interrupt the app.
+- `src/main/db/probe.js` verifies built-in SQLite availability by opening an in-memory `DatabaseSync` and returning `SELECT sqlite_version()`. `src/main/main.js` logs that version during startup.
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
+- `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 
 On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\app.log`. The application code resolves the location from Electron's `userData` path rather than hard-coding this Windows path.
 
 ## Planned
 
-- **M3 local database — decided, not yet implemented:** `node:sqlite` is the selected module; see the M3-001 decision below. No database package, connection, schema, or database file exists in the current implementation. M3-002 must verify that `node:sqlite` loads in Electron before database implementation begins. The database module is planned for `src/main/db/`, and the database file is planned at `userData/self-tracker.db`.
+- **M3 persistent database — decided, not yet implemented:** `node:sqlite` is the selected module and its availability has been verified in Electron; see M3-001 and M3-002 below. The current probe only opens an in-memory database. No persistent connection, schema, or database file exists yet. Database code is planned under `src/main/db/`, and the database file is planned at `userData/self-tracker.db`.
 - Later M3 tasks cover the database connection, user-data storage location, schema versioning, migrations, repositories, and safe database access through preload. These remain planned work.
 
 ## Decisions
@@ -58,8 +60,15 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 - **Decision:** Use Node's built-in `node:sqlite` (`DatabaseSync`) in the Electron main process.
 - **Why:** It needs no native module compilation on Windows. Electron 44.5.1 and system Node are both v24.21.0, so the app and `npm test` run the same SQLite code. It adds zero dependencies, and synchronous calls suit a local single-user app.
 - **Risk and mitigation:** `node:sqlite` is a release candidate and its API may change. Keep all database code in `src/main/db/` so the implementation can be swapped.
-- **Fallback:** If M3-002 verification finds that `node:sqlite` does not load in Electron, use `better-sqlite3` with `@electron/rebuild`.
+- **Fallback:** If M3-002 had found that `node:sqlite` did not load in Electron, the fallback would be `better-sqlite3` with `@electron/rebuild`. M3-002 verified that the built-in module loads, so no fallback package was installed.
 - **Database file:** Planned at `userData/self-tracker.db`.
+
+### M3-002 — SQLite runtime availability (2026-10-04)
+
+- **Result:** Verified `node:sqlite` inside the Electron 44.5.1 main process. An in-memory `DatabaseSync` query returned SQLite version `3.53.4`.
+- **Startup log:** The app writes the SQLite version to `userData/logs/app.log`.
+- **Test:** `npm test` passes, including the non-empty SQLite version assertion.
+- **Scope:** This verifies runtime availability only; persistent database setup remains planned.
 
 ## Run And Test
 

@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
 const { createLogger } = require("./logger");
+const { getSqliteVersion } = require("./db/probe");
 
 const logger = createLogger(() => app.getPath("userData"));
 
@@ -35,6 +36,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   logger.logInfo("Application started");
+  logger.logInfo("SQLite version", getSqliteVersion());
   createWindow();
 });
 

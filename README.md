@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-001, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-002, verify the chosen database module loads in Electron.
+- Stage 5 implementation through M3-002, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-003, create the database connection in the main process.
