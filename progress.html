@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage 5 Progress</title>
+  <style>
+    :root{--bg:#f5f6f3;--card:#fff;--ink:#17262b;--mute:#5d6b70;--line:#d9dedb;--acc:#0e6f66;--s0:#7b878b;--s1:#2563eb;--s2:#b45309;--s3:#7c3aed;--s4:#0e7490;--s5:#c0262d;--s6:#15803d}
+    @media(prefers-color-scheme:dark){:root{--bg:#10191c;--card:#172327;--ink:#e6eeee;--mute:#93a3a6;--line:#2a3a3f;--acc:#3fb8a9;--s0:#9aa7aa;--s1:#6ea0ff;--s2:#e0a040;--s3:#b39bff;--s4:#3cc3e0;--s5:#ff7b80;--s6:#4cc27a}}
+    *{box-sizing:border-box}body{margin:0 auto;max-width:1100px;padding:20px;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif}h1{margin:0 0 4px;font-size:26px}h2{margin:0 0 10px;font-size:16px}.mute{color:var(--mute);margin:0 0 16px}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}.big{font-size:44px;font-weight:700;line-height:1.1}.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}.counts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px}.chip{white-space:nowrap;font-size:13px}.chip:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}.msrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin-bottom:8px;font-size:14px}.msrow .bar{grid-column:1/3}.filters{display:flex;gap:10px;margin-bottom:10px}select{padding:6px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px}.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--mute);font-weight:600}.ok{color:var(--s6)}.unmet{color:var(--s5)}details{margin-top:4px;color:var(--mute)}summary{cursor:pointer}ul{margin:6px 0;padding-left:18px}
+  </style>
+</head>
+<body>
+  <h1>Self Tracker, Stage 5</h1>
+  <p class="mute">Windows desktop app. Every percentage below is calculated from the task statuses in this file.</p>
+  <section class="card" id="overall"></section>
+  <section class="grid">
+    <div class="card" id="focus"></div>
+    <div class="card"><h2>Milestones</h2><div id="ms"></div></div>
+  </section>
+  <section class="card">
+    <div class="filters"><select id="fm"></select><select id="fs"></select></div>
+    <div class="wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Task</th><th>Owner</th><th>Priority</th><th>Depends on</th><th>Status</th><th>Test</th><th>Notes</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+  <script>
+    /* HOW TO UPDATE: change a status in ST (use exactly one of the 7 names below),
+       and add notes in LOG. Do not edit anything else unless Claude plans a new task.
+       Statuses: NOT STARTED, READY, IN PROGRESS, WAITING FOR USER, TESTING, BLOCKED, DONE */
+    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"READY","M2-001":"READY"};
+    const LOG = {
+      "M0-001":{done:"2026-10-04",notes:"Web app = index.html + README.md + .gitignore, no build step"},
+      "M0-002":{done:"2026-10-04",notes:"Entry = {date, muscle, intensity}; JSON array in localStorage key 'entries'"},
+      "M0-004":{done:"2026-10-04",notes:"Carry over dropdown logging + history list; rebuild storage in M3"}
+    };
+    /* Details are only written for tasks that are READY or next in line. */
+    const D = {
+      "M0-003":{ac:["Tag v0-web exists locally","Tag is visible on GitHub"],test:"Run: git tag v0-web, then git push origin v0-web, then open the repo Tags page."},
+      "M2-001":{ac:["node -v prints a version","npm -v prints a version"],test:"Open a new VS Code terminal and run node -v and npm -v."},
+      "M2-002":{ac:["npm start opens a desktop window","Window shows the current index.html unchanged","Done button still saves and lists entries","Only package.json, main.js, .gitignore (node_modules/) and lockfile change"],test:"Run npm start, add two entries, close and reopen the app, entries still listed."}
+    };
+    /* Extra cross-milestone dependencies. Default: previous task in the same milestone,
+       or the last task of the milestone it follows. */
+    const DEP = {"M5-003":"M5-002,M1-006","M7-002":"M7-001,M1-005","M8-008":"M8-007,M1-004","M13-008":"M13-007,M4-003","M9-001":"M8-002"};
+    /* Who does each task. Default is AI (writes all code). CLAUDE plans, researches, decides and reviews. USER installs, runs and tests. */
+    const OWN = {CLAUDE:"M0-001,M0-002,M0-004,M1-002,M1-003,M1-004,M1-005,M1-006,M1-007,M1-008,M3-001,M13-001,M17-001",USER:"M0-003,M2-001,M16-006,M16-007,M17-005,M18-007,M19-006"};
+    const ownerOf = id => OWN.CLAUDE.split(",").includes(id) ? "CLAUDE" : OWN.USER.split(",").includes(id) ? "USER" : "AI";
+    const STATUSES = ["NOT STARTED","READY","IN PROGRESS","WAITING FOR USER","TESTING","BLOCKED","DONE"];
+    const SC = {"NOT STARTED":0,"READY":1,"IN PROGRESS":2,"WAITING FOR USER":3,"TESTING":4,"BLOCKED":5,"DONE":6};
+    /* milestone id: [name, priority, follows] */
+    const MS = {
+      M0:["Existing Project Audit","P1",""],M1:["Requirements & Evidence Research","P1","M0"],M2:["Desktop Architecture","P1","M0"],M3:["Local Database","P1","M2"],M4:["Workout Tracking","P1","M3"],M5:["Exercise & Muscle Library","P1","M3"],M6:["YouTube Learning","P2","M5"],M7:["Nutrition","P2","M3"],M8:["Food Database","P2","M7"],M9:["Budget & Meal Planner","P2","M8"],M10:["Shopping List","P3","M9"],M11:["Body Progress","P2","M3"],M12:["Recovery","P3","M4"],M13:["Dashboard & Analytics","P2","M4"],M14:["Notifications & Settings","P3","M3"],M15:["Backup / Import / Export","P2","M3"],M16:["Testing & Reliability","P2","M13"],M17:["Windows Packaging","P1","M16"],M18:["UI/UX Polish","P3","M16"],M19:["Documentation","P2","M17"]
+    };
+    const RAW = `M0-001|Inventory current files and features
+M0-002|Record current data shape
+M0-004|Decide what carries over to desktop
+M0-003|Tag current web version v0-web
+M1-001|Create DATA-SOURCES.md skeleton
+M1-002|Research UK CMO physical activity guidance
+M1-003|Research NHS Eatwell Guide
+M1-004|Research CoFID dataset: format, licence, access
+M1-005|Research BDA sport and exercise nutrition
+M1-006|Research ACSM resistance training guidance
+M1-007|Compare Strong, Hevy, Fitbod, MyFitnessPal, NTC
+M1-008|Write feature priorities: standard, improve, avoid, unique
+M2-001|Install Node.js LTS and verify
+M2-002|Electron skeleton opening existing index.html
+M2-003|Add secure window settings and preload script
+M2-004|Define folder structure (main, preload, renderer, shared)
+M2-005|Add app icon placeholder
+M2-006|Add navigation shell with empty sections
+M2-007|Add error logging to file
+M2-008|Add npm scripts: start, test
+M2-009|Move web logic into renderer folder
+M2-010|Write ARCHITECTURE.md
+M3-001|Choose local database and record decision
+M3-002|Install database library and verify it loads
+M3-003|Create database connection in main process
+M3-004|Store database file in userData folder
+M3-005|Create schema_version table
+M3-006|Add migration runner
+M3-007|Create UserProfile table
+M3-008|Create Goal table
+M3-009|Create Muscle table
+M3-010|Create Exercise table
+M3-011|Create ExerciseMuscle relation table
+M3-012|Expose safe database API through preload
+M3-013|Seed muscle list
+M3-014|Add database smoke test
+M4-001|Create Workout table
+M4-002|Create WorkoutSession table
+M4-003|Create SetLog table (reps, weight)
+M4-004|Add RPE to SetLog
+M4-005|Add RIR to SetLog
+M4-006|Add rest time to SetLog
+M4-007|Add set type (warm-up, working, drop)
+M4-008|Workout repository: create and read
+M4-009|Create workout screen (name, date)
+M4-010|Exercise selection in workout
+M4-011|Log a set form
+M4-012|Complete workout (duration, notes)
+M4-013|Workout history list
+M4-014|Edit workout
+M4-015|Duplicate and repeat workout
+M4-016|Workout templates
+M4-017|Rest timer
+M4-018|Superset grouping
+M5-001|Define exercise import JSON format
+M5-002|Seed 30 core exercises
+M5-003|Primary, secondary, stabiliser muscle mapping
+M5-004|Exercise list screen
+M5-005|Exercise detail screen
+M5-006|Filters: muscle, equipment, difficulty, movement
+M5-007|Instructions and common mistakes fields
+M5-008|Alternatives and substitutions relation
+M5-009|Substitution suggestion UI
+M5-010|Custom exercise form
+M5-011|Muscle group screen
+M5-012|Sources field for exercise info
+M6-001|Create YouTube resource table
+M6-002|URL validation function with tests
+M6-003|Video ID extraction with tests
+M6-004|Add-resource form
+M6-005|Link resource to exercise or muscle
+M6-006|Embed player with Open on YouTube fallback
+M6-007|Open externally button
+M6-008|Delete and replace resource
+M6-009|Favourites
+M7-001|Create nutrition settings table
+M7-002|Calorie target calculation with tests
+M7-003|Protein, carb, fat target calculation with tests
+M7-004|Nutrition settings screen
+M7-005|Create FoodLog table
+M7-006|Log food entry form
+M7-007|Daily totals calculation with tests
+M7-008|Water tracking
+M7-009|Fibre and selected micronutrient fields
+M7-010|Add not-medical-advice disclaimer text
+M8-001|Create Food table
+M8-002|Food repository
+M8-003|Food entry form with validation
+M8-004|Custom foods
+M8-005|Food search
+M8-006|Allergens and notes fields
+M8-007|Source and source date fields
+M8-008|Import CoFID subset
+M8-009|Food detail display
+M8-010|Explain how food supports training and recovery
+M9-001|Create PriceRecord table
+M9-002|Price entry form
+M9-003|Unit price calculation with tests
+M9-004|Cost per serving calculation
+M9-005|Cost per 100 g protein with tests
+M9-006|Cost per 1,000 kcal with tests
+M9-007|Create Meal and Recipe tables
+M9-008|Recipe builder form
+M9-009|Recipe nutrition totals with tests
+M9-010|Recipe cost totals with tests
+M9-011|Budget planner inputs screen
+M9-012|Preferences, exclusions, equipment inputs
+M9-013|Simple meal combination generator
+M9-014|Nutritional balance check
+M9-015|Meal plan with cost breakdown
+M9-016|Stale price warning
+M10-001|Create ShoppingItem table
+M10-002|Generate list from meal plan
+M10-003|Shopping list screen
+M10-004|Check off item
+M10-005|Edit and delete quantity
+M10-006|Add custom item
+M10-007|Already-owned flag
+M11-001|Create BodyMeasurement table
+M11-002|Body weight form
+M11-003|Measurements form
+M11-004|Custom measurement types
+M11-005|Local progress photo storage
+M11-006|Photo gallery view
+M11-007|Body weight chart
+M11-008|Measurement history list
+M12-001|Create RecoveryLog table
+M12-002|Daily check-in form
+M12-003|Recently trained muscles calculation
+M12-004|Informational recovery panel
+M12-005|Recovery history list
+M12-006|Recovery disclaimer text
+M13-001|Choose chart library
+M13-002|Dashboard layout skeleton
+M13-003|Today's workout card
+M13-004|Calories, protein, water card
+M13-005|Workout streak calculation with tests
+M13-006|Weekly workouts card
+M13-007|Recent PR card
+M13-008|Estimated 1RM function with tests
+M13-009|PR detection with tests
+M13-010|Weekly volume calculation with tests
+M13-011|Muscle-group volume chart
+M13-012|Exercise progression chart
+M13-013|Food spending and protein cost chart
+M13-014|Next workout card
+M14-001|Settings screen skeleton
+M14-002|Units setting (kg, lb)
+M14-003|Theme setting
+M14-004|Rest timer sound
+M14-005|Workout reminder notification
+M14-006|Persist settings
+M15-001|Export all data to JSON
+M15-002|Import JSON with validation
+M15-003|Backup to chosen folder
+M15-004|Restore from backup
+M15-005|Export workouts to CSV
+M15-006|Backup reminder
+M15-007|Schema version check on import
+M16-001|Set up unit test runner
+M16-002|Tests for all calculation functions
+M16-003|Input validation sweep
+M16-004|Global error handling UI
+M16-005|Database failure handling
+M16-006|Manual regression checklist
+M16-007|Restart persistence check for all data
+M16-008|Fix list from regression pass
+M17-001|Choose packager
+M17-002|Build unpacked app
+M17-003|Create Windows installer
+M17-004|Set app icon in build
+M17-005|Test install and uninstall
+M17-006|Document release steps
+M18-001|Consistent layout and spacing
+M18-002|Colour and typography pass
+M18-003|Empty states for all screens
+M18-004|Keyboard navigation and focus
+M18-005|Window resizing behaviour
+M18-006|Wording of loading and error messages
+M18-007|Final screenshot set
+M19-001|Complete README
+M19-002|Complete DATA-SOURCES.md
+M19-003|Finalise ARCHITECTURE.md
+M19-004|Write user guide
+M19-005|In-app disclaimers page
+M19-006|Final Stage 5 checklist review`;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>\"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const stOf = id => ST[id] || "NOT STARTED";
+    const chip = s => `<span class="chip" style="--c:var(--s${SC[s]})">${s}</span>`;
+    const pct = (a,b) => b ? 100*a/b : 0;
+    const T = RAW.trim().split("\n").map(l => {const [id,name] = l.split("|");return {id,name,ms:id.split("-")[0]}});
+    const prev = {}, lastOf = {};
+    T.forEach(t => {const m=MS[t.ms];t.pri=m[1];const d=DEP[t.id]!==undefined?DEP[t.id]:(prev[t.ms]||lastOf[m[2]]||"");t.deps=d?d.split(","):[];prev[t.ms]=t.id;lastOf[t.ms]=t.id});
+    const total=T.length, done=T.filter(t=>stOf(t.id)==="DONE").length;
+    $("overall").innerHTML=`<h2>Overall progress</h2><div class="big">${pct(done,total).toFixed(1)}%</div><div class="bar"><i style="width:${pct(done,total)}%"></i></div><p class="mute">${done} of ${total} tasks done</p><div class="counts">`+STATUSES.map(s=>`<span>${chip(s)} ${T.filter(t=>stOf(t.id)===s).length}</span>`).join("")+`</div><p class="mute">Remaining tasks by owner: `+["AI","CLAUDE","USER"].map(o=>`${o} ${T.filter(t=>ownerOf(t.id)===o&&stOf(t.id)!=="DONE").length}`).join(", ")+`</p>`;
+    const active=["IN PROGRESS","WAITING FOR USER","TESTING"];
+    const cur=T.find(t=>active.includes(stOf(t.id))), nxt=T.find(t=>stOf(t.id)==="READY"), blk=T.filter(t=>stOf(t.id)==="BLOCKED");
+    const line=(k,t)=>`<p><b>${k}</b><br>${t?esc(t.id)+" "+esc(t.name):"none"}</p>`;
+    $("focus").innerHTML="<h2>Focus</h2>"+line("Current task",cur)+line("Next ready task",nxt)+`<p><b>Blocked</b><br>${blk.length?blk.map(t=>esc(t.id)).join(", "):"none"}</p>`;
+    $("ms").innerHTML=Object.keys(MS).map(k=>{const L=T.filter(t=>t.ms===k),d=L.filter(t=>stOf(t.id)==="DONE").length;return `<div class="msrow"><span>${k} ${esc(MS[k][0])}</span><span>${d}/${L.length}</span><div class="bar"><i style="width:${pct(d,L.length)}%"></i></div></div>`}).join("");
+    $("fm").innerHTML='<option value="">All milestones</option>'+Object.keys(MS).map(k=>`<option>${k}</option>`).join("");
+    $("fs").innerHTML='<option value="">All statuses</option>'+STATUSES.map(s=>`<option>${s}</option>`).join("");
+    function rows(){
+      const m=$("fm").value,s=$("fs").value;
+      $("rows").innerHTML=T.filter(t=>(!m||t.ms===m)&&(!s||stOf(t.id)===s)).map(t=>{
+        const L=LOG[t.id]||{},d=D[t.id];
+        const deps=t.deps.map(x=>`<span class="${stOf(x)==="DONE"?"ok":"unmet"}">${x}</span>`).join(" ")||"none";
+        const det=d?`<details><summary>Criteria and test</summary><ul>${d.ac.map(a=>`<li>[ ] ${esc(a)}</li>`).join("")}</ul><p>Test: ${esc(d.test)}</p></details>`:"";
+        const note=[L.done?"Done "+L.done:"",L.files?"Files: "+L.files:"",L.notes||""].filter(Boolean).map(esc).join(". ");
+        return `<tr><td>${t.id}</td><td>${esc(t.name)}${det}</td><td>${ownerOf(t.id)}</td><td>${t.pri}</td><td>${deps}</td><td>${chip(stOf(t.id))}</td><td>${esc(L.test||"-")}</td><td>${note}</td></tr>`;
+      }).join("");
+    }
+    $("fm").onchange=rows;
+    $("fs").onchange=rows;
+    rows();
+  </script>
+</body>
+</html>
