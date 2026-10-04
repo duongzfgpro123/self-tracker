@@ -31,11 +31,14 @@
     /* HOW TO UPDATE: change a status in ST (use exactly one of the 7 names below),
        and add notes in LOG. Do not edit anything else unless Claude plans a new task.
        Statuses: NOT STARTED, READY, IN PROGRESS, WAITING FOR USER, TESTING, BLOCKED, DONE */
-    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"READY","M2-001":"READY"};
+    const ST = {"M0-001":"DONE","M0-002":"DONE","M0-004":"DONE","M0-003":"WAITING FOR USER","M2-001":"DONE","M2-002":"DONE"};
     const LOG = {
       "M0-001":{done:"2026-10-04",notes:"Web app = index.html + README.md + .gitignore, no build step"},
       "M0-002":{done:"2026-10-04",notes:"Entry = {date, muscle, intensity}; JSON array in localStorage key 'entries'"},
-      "M0-004":{done:"2026-10-04",notes:"Carry over dropdown logging + history list; rebuild storage in M3"}
+      "M0-004":{done:"2026-10-04",notes:"Carry over dropdown logging + history list; rebuild storage in M3"},
+      "M0-003":{test:"pass",notes:"Tag v0-web points to 9681016 and was pushed to origin; confirmed on remote."},
+      "M2-001":{done:"2026-10-04",test:"pass",notes:"Node v24.21.0, npm 11.19.0"},
+      "M2-002":{done:"2026-10-04",files:"main.js, package.json, package-lock.json, .gitignore, README.md",test:"pass",notes:"Electron 44.5.1 opened index.html; two entries remained listed after closing and reopening."}
     };
     /* Details are only written for tasks that are READY or next in line. */
     const D = {
@@ -47,7 +50,7 @@
        or the last task of the milestone it follows. */
     const DEP = {"M5-003":"M5-002,M1-006","M7-002":"M7-001,M1-005","M8-008":"M8-007,M1-004","M13-008":"M13-007,M4-003","M9-001":"M8-002"};
     /* Who does each task. Default is AI (writes all code). CLAUDE plans, researches, decides and reviews. USER installs, runs and tests. */
-    const OWN = {CLAUDE:"M0-001,M0-002,M0-004,M1-002,M1-003,M1-004,M1-005,M1-006,M1-007,M1-008,M3-001,M13-001,M17-001",USER:"M0-003,M2-001,M16-006,M16-007,M17-005,M18-007,M19-006"};
+    const OWN = {CLAUDE:"M0-001,M0-002,M0-004,M1-002,M1-003,M1-004,M1-005,M1-006,M1-007,M1-008,M3-001,M13-001,M17-001",USER:"M2-001,M16-006,M16-007,M17-005,M18-007,M19-006"};
     const ownerOf = id => OWN.CLAUDE.split(",").includes(id) ? "CLAUDE" : OWN.USER.split(",").includes(id) ? "USER" : "AI";
     const STATUSES = ["NOT STARTED","READY","IN PROGRESS","WAITING FOR USER","TESTING","BLOCKED","DONE"];
     const SC = {"NOT STARTED":0,"READY":1,"IN PROGRESS":2,"WAITING FOR USER":3,"TESTING":4,"BLOCKED":5,"DONE":6};
