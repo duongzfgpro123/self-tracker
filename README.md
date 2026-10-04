@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 desktop app: tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M2-003, secure BrowserWindow settings and a preload script.
+- Stage 5 implementation through M2-003, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M2-004, define the main, preload, renderer, and shared folder structure.
