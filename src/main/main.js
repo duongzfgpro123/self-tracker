@@ -2,8 +2,10 @@ const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
 const { createLogger } = require("./logger");
 const { getSqliteVersion } = require("./db/probe");
+const { closeDatabase, openDatabase } = require("./db/connection");
 
 const logger = createLogger(() => app.getPath("userData"));
+let database;
 
 process.on("uncaughtException", error => {
   logger.logError("Uncaught exception", error);
@@ -37,7 +39,17 @@ function createWindow() {
 app.whenReady().then(() => {
   logger.logInfo("Application started");
   logger.logInfo("SQLite version", getSqliteVersion());
+  database = openDatabase(":memory:");
+  logger.logInfo("Database opened", { location: ":memory:" });
   createWindow();
+});
+
+app.on("before-quit", () => {
+  if (!database) return;
+
+  closeDatabase(database);
+  logger.logInfo("Database closed");
+  database = null;
 });
 
 app.on("window-all-closed", () => {

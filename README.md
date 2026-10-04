@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-002, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-003, create the database connection in the main process.
+- Stage 5 implementation through M3-003, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-004, store the database file in the userData folder.
