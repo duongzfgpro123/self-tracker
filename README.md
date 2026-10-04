@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M2-010, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-001, choose the local database and record the decision.
+- Stage 5 implementation through M3-001, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-002, verify the chosen database module loads in Electron.

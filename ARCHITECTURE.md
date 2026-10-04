@@ -48,8 +48,18 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 
 ## Planned
 
-- **M3 local database:** a local SQLite database is planned, but database choice and design have not been implemented. Task `M3-001` is responsible for choosing the database and recording the final decision. No database package, connection, schema, or database file exists in the current implementation. Do not treat SQLite as a final choice until M3-001 is completed.
+- **M3 local database — decided, not yet implemented:** `node:sqlite` is the selected module; see the M3-001 decision below. No database package, connection, schema, or database file exists in the current implementation. M3-002 must verify that `node:sqlite` loads in Electron before database implementation begins. The database module is planned for `src/main/db/`, and the database file is planned at `userData/self-tracker.db`.
 - Later M3 tasks cover the database connection, user-data storage location, schema versioning, migrations, repositories, and safe database access through preload. These remain planned work.
+
+## Decisions
+
+### M3-001 — Local database (2026-10-04)
+
+- **Decision:** Use Node's built-in `node:sqlite` (`DatabaseSync`) in the Electron main process.
+- **Why:** It needs no native module compilation on Windows. Electron 44.5.1 and system Node are both v24.21.0, so the app and `npm test` run the same SQLite code. It adds zero dependencies, and synchronous calls suit a local single-user app.
+- **Risk and mitigation:** `node:sqlite` is a release candidate and its API may change. Keep all database code in `src/main/db/` so the implementation can be swapped.
+- **Fallback:** If M3-002 verification finds that `node:sqlite` does not load in Electron, use `better-sqlite3` with `@electron/rebuild`.
+- **Database file:** Planned at `userData/self-tracker.db`.
 
 ## Run And Test
 
