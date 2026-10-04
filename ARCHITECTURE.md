@@ -11,6 +11,10 @@
 │   └── icon.png
 ├── src/
 │   ├── main/
+│   │   ├── db/
+│   │   │   ├── connection.js
+│   │   │   ├── probe.js
+│   │   │   └── schema.js
 │   │   ├── logger.js
 │   │   └── main.js
 │   ├── preload/
@@ -22,7 +26,10 @@
 │   └── shared/
 │       └── .gitkeep
 ├── test/
-│   └── smoke.test.js
+│   ├── connection.test.js
+│   ├── schema.test.js
+│   ├── smoke.test.js
+│   └── sqlite-available.test.js
 ├── .gitignore
 ├── package-lock.json
 ├── package.json
@@ -33,7 +40,6 @@
 ## Implemented
 
 - `package.json` sets `src/main/main.js` as the Electron entry point. The `start` script launches Electron; `test` uses Node's built-in test runner.
-- `src/main/main.js` owns the Electron app lifecycle and creates the 900x700 `BrowserWindow`. It loads `src/renderer/index.html`, sets the app icon from `assets/icon.png`, and logs uncaught exceptions, unhandled rejections, and renderer-process termination.
 - `src/main/main.js` owns the Electron app lifecycle and creates the 900x700 `BrowserWindow`. It loads `src/renderer/index.html`, sets the app icon from `assets/icon.png`, and logs uncaught exceptions, unhandled rejections, renderer-process termination, and database lifecycle events. At startup it opens `userData/self-tracker.db`, creating the userData directory if needed; if opening fails it logs the error, shows an error dialog, and quits.
 - The window uses `contextIsolation: true`, `nodeIntegration: false`, and `sandbox: true`. Its preload is `src/preload/preload.js`.
 - `src/preload/preload.js` uses `contextBridge` to expose only `window.appInfo = { name: "Self Tracker" }` to the renderer.
@@ -46,15 +52,17 @@
 - `src/main/logger.js` appends ISO-timestamped messages to `app.getPath("userData")/logs/app.log`, creating the logs directory when needed. Logging failures are caught so they do not interrupt the app.
 - `src/main/db/probe.js` verifies built-in SQLite availability by opening an in-memory `DatabaseSync` and returning `SELECT sqlite_version()`. `src/main/main.js` logs that version during startup.
 - `src/main/db/connection.js` opens a `DatabaseSync` at the requested location, enables foreign keys, sets a 5000 ms busy timeout, and makes close idempotent. The main process uses it for `userData/self-tracker.db` and logs the full path when opening and closing it.
+- `src/main/db/schema.js` creates `schema_version(version INTEGER NOT NULL, name TEXT NOT NULL, applied_at TEXT NOT NULL)` idempotently. `getSchemaVersion` returns the highest recorded version, or `0` when the table has no rows. The main process ensures the table at startup.
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
+- `test/schema.test.js` checks schema_version columns, idempotent creation, and schema-version lookup.
 
 On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\app.log`. The application code resolves the location from Electron's `userData` path rather than hard-coding this Windows path.
 
 ## Planned
 
-- **Schema and data access — planned:** Create the schema/version table, migrations, repositories, and safe preload access in later M3 tasks. The current file-backed connection is open/close only; no tables or migrations exist yet.
+- **Schema and data access — planned:** Add migrations, repositories, and safe preload access in later M3 tasks. The schema_version table is implemented; no migrations or domain tables exist yet.
 
 ## Decisions
 
@@ -84,6 +92,12 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 - **Location:** `app.getPath("userData")/self-tracker.db`; on this Windows machine, `C:\Users\Admin\AppData\Roaming\self-tracker\self-tracker.db`.
 - **Lifecycle:** The main process creates the userData directory if needed, logs the full path, opens the database at startup, and closes it before quit. An open failure is logged, shown in an error dialog, and followed by app quit.
 - **Verification:** The file exists outside the repository, the app reopened it on a second start, and `app.log` recorded open and close messages.
+
+### M3-005 — Schema version table (2026-10-04)
+
+- **Result:** Startup creates the `schema_version` table with non-null `version`, `name`, and `applied_at` columns. Creation is safe to repeat.
+- **Version lookup:** `getSchemaVersion` returns the highest version or `0` for a new/empty table.
+- **Verification:** `npm test` passed; the app started twice against the same userData database without errors, and a new database reported version `0`.
 
 ## Run And Test
 

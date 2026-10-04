@@ -4,6 +4,7 @@ const path = require("node:path");
 const { createLogger } = require("./logger");
 const { getSqliteVersion } = require("./db/probe");
 const { closeDatabase, openDatabase } = require("./db/connection");
+const { ensureSchemaVersionTable } = require("./db/schema");
 
 const logger = createLogger(() => app.getPath("userData"));
 let database;
@@ -47,11 +48,12 @@ app.whenReady().then(() => {
     logger.logInfo("Database path", databasePath);
     fs.mkdirSync(userDataPath, { recursive: true });
     database = openDatabase(databasePath);
+    ensureSchemaVersionTable(database);
   } catch (error) {
-    logger.logError("Database open failed", error);
+    logger.logError("Database initialization failed", error);
     dialog.showErrorBox(
       "Database Error",
-      `Could not open the database at ${databasePath || "the user data path"}.\n\n${error.message}`,
+      `Could not open or initialize the database at ${databasePath || "the user data path"}.\n\n${error.message}`,
     );
     app.quit();
     return;

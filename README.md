@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-004, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-005, create the schema_version table.
+- Stage 5 implementation through M3-005, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-006, add the migration runner.
