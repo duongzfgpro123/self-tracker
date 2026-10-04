@@ -3,29 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Workout Log</title>
+  <title>Dashboard | Self Tracker</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>What did you train today?</h1>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="../../assets/icon.png" alt="">
+        <div class="brand-copy"><span class="brand-name">Self Tracker</span><span class="brand-label">Training desk</span></div>
+      </div>
+      <p class="nav-label">Workspace</p>
+      <nav aria-label="Main navigation">
+        <button class="nav-link is-active" type="button" data-section="dashboard" aria-current="page"><span class="nav-number">01</span><span>Dashboard</span></button>
+        <button class="nav-link" type="button" data-section="workouts"><span class="nav-number">02</span><span>Workouts</span></button>
+        <button class="nav-link" type="button" data-section="exercise-library"><span class="nav-number">03</span><span>Exercise Library</span></button>
+        <button class="nav-link" type="button" data-section="muscle-groups"><span class="nav-number">04</span><span>Muscle Groups</span></button>
+        <button class="nav-link" type="button" data-section="youtube-learning"><span class="nav-number">05</span><span>YouTube Learning</span></button>
+        <button class="nav-link" type="button" data-section="nutrition"><span class="nav-number">06</span><span>Nutrition</span></button>
+        <button class="nav-link" type="button" data-section="food-database"><span class="nav-number">07</span><span>Food Database</span></button>
+        <button class="nav-link" type="button" data-section="meals-recipes"><span class="nav-number">08</span><span>Meals &amp; Recipes</span></button>
+        <button class="nav-link" type="button" data-section="budget-planner"><span class="nav-number">09</span><span>Budget Planner</span></button>
+        <button class="nav-link" type="button" data-section="shopping-list"><span class="nav-number">10</span><span>Shopping List</span></button>
+        <button class="nav-link" type="button" data-section="body-progress"><span class="nav-number">11</span><span>Body Progress</span></button>
+        <button class="nav-link" type="button" data-section="recovery"><span class="nav-number">12</span><span>Recovery</span></button>
+        <button class="nav-link" type="button" data-section="analytics"><span class="nav-number">13</span><span>Analytics</span></button>
+        <button class="nav-link" type="button" data-section="settings"><span class="nav-number">14</span><span>Settings</span></button>
+        <button class="nav-link" type="button" data-section="backup-export"><span class="nav-number">15</span><span>Backup / Export</span></button>
+      </nav>
+      <div class="sidebar-foot"><span class="status-dot"></span><span>Local workspace</span></div>
+    </aside>
 
-  <select id="muscle">
-    <option value="chest">Chest</option>
-    <option value="back">Back</option>
-    <option value="legs">Legs</option>
-  </select>
-
-  <select id="intensity">
-    <option value="light">Light</option>
-    <option value="medium">Medium</option>
-    <option value="heavy">Heavy</option>
-  </select>
-
-  <h2>History</h2>
-  <ul id="history"></ul>
-
-  <button id="done">Done</button>
-
+    <div class="workspace">
+      <header class="topbar"><span class="topbar-label">Self Tracker / Desktop</span><span class="local-label">Local data</span></header>
+      <main>
+        <section class="page" data-page="dashboard">
+          <header class="page-heading"><p class="eyebrow">Overview</p><h1>Dashboard</h1></header>
+          <div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div>
+        </section>
+        <section class="page" data-page="workouts" hidden>
+          <header class="page-heading"><p class="eyebrow">Training log</p><h1>Workouts</h1></header>
+          <div class="workout-grid">
+            <section class="panel">
+              <h2>Log a session</h2>
+              <div class="log-form">
+                <label class="field" for="muscle">Muscle group
+                  <select id="muscle"><option value="chest">Chest</option><option value="back">Back</option><option value="legs">Legs</option></select>
+                </label>
+                <label class="field" for="intensity">Intensity
+                  <select id="intensity"><option value="light">Light</option><option value="medium">Medium</option><option value="heavy">Heavy</option></select>
+                </label>
+                <button id="done" class="done-button" type="button"><span class="done-mark" aria-hidden="true">+</span>Done</button>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="history-heading"><h2>History</h2><span class="history-label">Saved sessions</span></div>
+              <ul id="history"></ul>
+            </section>
+          </div>
+        </section>
+        <section class="page" data-page="exercise-library" hidden><header class="page-heading"><p class="eyebrow">Library</p><h1>Exercise Library</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="muscle-groups" hidden><header class="page-heading"><p class="eyebrow">Reference</p><h1>Muscle Groups</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="youtube-learning" hidden><header class="page-heading"><p class="eyebrow">Learning</p><h1>YouTube Learning</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="nutrition" hidden><header class="page-heading"><p class="eyebrow">Nutrition</p><h1>Nutrition</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="food-database" hidden><header class="page-heading"><p class="eyebrow">Nutrition</p><h1>Food Database</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="meals-recipes" hidden><header class="page-heading"><p class="eyebrow">Planning</p><h1>Meals &amp; Recipes</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="budget-planner" hidden><header class="page-heading"><p class="eyebrow">Planning</p><h1>Budget Planner</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="shopping-list" hidden><header class="page-heading"><p class="eyebrow">Planning</p><h1>Shopping List</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="body-progress" hidden><header class="page-heading"><p class="eyebrow">Progress</p><h1>Body Progress</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="recovery" hidden><header class="page-heading"><p class="eyebrow">Wellbeing</p><h1>Recovery</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="analytics" hidden><header class="page-heading"><p class="eyebrow">Insights</p><h1>Analytics</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="settings" hidden><header class="page-heading"><p class="eyebrow">Preferences</p><h1>Settings</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+        <section class="page" data-page="backup-export" hidden><header class="page-heading"><p class="eyebrow">Data</p><h1>Backup / Export</h1></header><div class="placeholder"><span class="placeholder-mark" aria-hidden="true">+</span><p>Coming soon</p></div></section>
+      </main>
+    </div>
+  </div>
   <script>
+    const navigationLinks = Array.from(document.querySelectorAll(".nav-link"));
+    const pages = Array.from(document.querySelectorAll(".page"));
+
+    function showPage(section) {
+      const activePage = pages.find(page => page.dataset.page === section);
+      if (!activePage) return;
+
+      pages.forEach(page => {
+        page.hidden = page !== activePage;
+      });
+
+      navigationLinks.forEach(link => {
+        const isActive = link.dataset.section === section;
+        link.classList.toggle("is-active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "page");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      });
+
+      document.title = activePage.querySelector("h1").textContent + " | Self Tracker";
+    }
+
+    navigationLinks.forEach(link => {
+      link.addEventListener("click", function () {
+        showPage(link.dataset.section);
+      });
+    });
+
     // Find the Done button so we can react when it is clicked
     const doneButton = document.getElementById("done");
 
