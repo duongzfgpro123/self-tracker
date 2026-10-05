@@ -5,6 +5,8 @@ const { createLogger } = require("./logger");
 const { getSqliteVersion } = require("./db/probe");
 const { closeDatabase, openDatabase } = require("./db/connection");
 const { ensureSchemaVersionTable } = require("./db/schema");
+const { runMigrations } = require("./db/migrate");
+const migrations = require("./db/migrations");
 
 const logger = createLogger(() => app.getPath("userData"));
 let database;
@@ -49,6 +51,7 @@ app.whenReady().then(() => {
     fs.mkdirSync(userDataPath, { recursive: true });
     database = openDatabase(databasePath);
     ensureSchemaVersionTable(database);
+    runMigrations(database, migrations);
   } catch (error) {
     logger.logError("Database initialization failed", error);
     dialog.showErrorBox(
