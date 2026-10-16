@@ -34,7 +34,9 @@ body {
 }
 
 button,
-select {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -311,7 +313,9 @@ h2 {
   font-weight: 700;
 }
 
-select {
+select,
+.field input,
+.field textarea {
   width: 100%;
   min-height: 40px;
   padding: 0 11px;
@@ -323,6 +327,8 @@ select {
 }
 
 select:focus-visible,
+.field input:focus-visible,
+.field textarea:focus-visible,
 .nav-link:focus-visible,
 .done-button:focus-visible {
   outline: 3px solid #d8ad4d;
@@ -344,6 +350,21 @@ select:focus-visible,
   font-weight: 700;
 }
 
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #a3aea8;
+}
+
+.field textarea {
+  padding: 9px 11px;
+  resize: vertical;
+}
+
+.done-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .done-button:hover {
   background: #28675b;
 }
@@ -352,6 +373,44 @@ select:focus-visible,
   color: #f2d68f;
   font-size: 16px;
   line-height: 1;
+}
+
+.workout-builder {
+  margin-bottom: 14px;
+}
+
+.form-error {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: #fbe9e7;
+  color: #9b2c22;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.empty-note {
+  margin: 0;
+  padding: 15px 2px;
+  border-top: 1px solid #edf0eb;
+  color: #89948e;
+}
+
+.current-name {
+  margin: 0 0 2px;
+  font-size: 18px;
+}
+
+.current-date {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.current-notes {
+  margin: 0 0 12px;
+  color: #34483f;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .history-heading {

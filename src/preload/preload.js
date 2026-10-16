@@ -10,4 +10,9 @@ contextBridge.exposeInMainWorld("api", {
   muscles: {
     list: () => ipcRenderer.invoke("muscles:list"),
   },
+  workouts: {
+    create: (workout) => ipcRenderer.invoke("workouts:create", workout),
+    get: (id) => ipcRenderer.invoke("workouts:get", id),
+    list: () => ipcRenderer.invoke("workouts:list"),
+  },
 });

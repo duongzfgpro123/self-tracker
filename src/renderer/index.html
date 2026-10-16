@@ -43,6 +43,28 @@
         </section>
         <section class="page" data-page="workouts" hidden>
           <header class="page-heading"><p class="eyebrow">Training log</p><h1>Workouts</h1></header>
+          <div class="workout-grid workout-builder">
+            <section class="panel">
+              <h2>New workout</h2>
+              <form id="new-workout-form" class="log-form" novalidate>
+                <label class="field" for="workout-name">Name
+                  <input id="workout-name" type="text" placeholder="Push day" autocomplete="off">
+                </label>
+                <label class="field" for="workout-date">Date
+                  <input id="workout-date" type="date">
+                </label>
+                <label class="field" for="workout-notes">Notes (optional)
+                  <textarea id="workout-notes" rows="3"></textarea>
+                </label>
+                <p id="workout-error" class="form-error" role="alert" hidden></p>
+                <button id="create-workout" class="done-button" type="submit"><span class="done-mark" aria-hidden="true">+</span>Create workout</button>
+              </form>
+            </section>
+            <section class="panel" aria-live="polite">
+              <div class="history-heading"><h2>Current workout</h2><span class="history-label">From database</span></div>
+              <div id="current-workout"><p class="empty-note">Create a workout to start logging.</p></div>
+            </section>
+          </div>
           <div class="workout-grid">
             <section class="panel">
               <h2>Log a session</h2>
