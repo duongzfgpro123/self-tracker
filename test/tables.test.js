@@ -183,3 +183,45 @@ test("workout rejects blank names, malformed dates, and negative durations", () 
     closeDatabase(database);
   }
 });
+
+test("workout_exercise enforces links and positions, cascades workout deletes, and protects used exercises", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const workoutId = database
+      .prepare("INSERT INTO workout (name, workout_date, created_at, updated_at) VALUES (?, ?, ?, ?)")
+      .run("Push day", "2026-10-16", NOW, NOW).lastInsertRowid;
+    const exerciseId = database
+      .prepare("INSERT INTO exercise (name, created_at) VALUES (?, ?)")
+      .run("Test exercise", NOW).lastInsertRowid;
+    const insertSlot = database.prepare(
+      "INSERT INTO workout_exercise (workout_id, exercise_id, position) VALUES (?, ?, ?)",
+    );
+    const countSlots = () => database.prepare("SELECT COUNT(*) AS count FROM workout_exercise").get().count;
+
+    assert.throws(() => insertSlot.run(9999, exerciseId, 1), /FOREIGN KEY constraint failed/);
+    assert.throws(() => insertSlot.run(workoutId, 9999, 1), /FOREIGN KEY constraint failed/);
+    assert.throws(() => insertSlot.run(workoutId, exerciseId, 0), /CHECK constraint failed/);
+
+    insertSlot.run(workoutId, exerciseId, 1);
+    assert.throws(() => insertSlot.run(workoutId, exerciseId, 1), /UNIQUE constraint failed/);
+    insertSlot.run(workoutId, exerciseId, 2);
+
+    assert.throws(
+      () => database.prepare("DELETE FROM exercise WHERE id = ?").run(exerciseId),
+      /FOREIGN KEY constraint failed/,
+    );
+    assert.equal(countSlots(), 2);
+
+    database.prepare("DELETE FROM workout WHERE id = ?").run(workoutId);
+    assert.equal(countSlots(), 0);
+
+    const indexedColumns = database
+      .prepare("PRAGMA index_info(workout_exercise_exercise_id_idx)")
+      .all()
+      .map(({ name }) => name);
+    assert.deepEqual(indexedColumns, ["exercise_id"]);
+  } finally {
+    closeDatabase(database);
+  }
+});

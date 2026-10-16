@@ -16,6 +16,7 @@ const EXPECTED_TABLES = [
   "schema_version",
   "user_profile",
   "workout",
+  "workout_exercise",
 ];
 const NOW = "2026-10-16T00:00:00.000Z";
 
