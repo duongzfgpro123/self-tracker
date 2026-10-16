@@ -27,6 +27,7 @@
 │   │   │   │   ├── 010-set-log-rpe.js
 │   │   │   │   ├── 011-set-log-rir.js
 │   │   │   │   ├── 012-set-log-rest.js
+│   │   │   │   ├── 013-set-log-type.js
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
@@ -90,6 +91,7 @@
 - Migration 010 adds `set_log.rpe`: optional rate of perceived exertion from `1` to `10` in half steps (for example `8` or `8.5`).
 - Migration 011 adds `set_log.rir`: optional whole-number reps in reserve from `0` to `10`.
 - Migration 012 adds `set_log.rest_seconds`: optional rest taken after the set, in seconds (`0` or more).
+- Migration 013 adds `set_log.set_type`: required, limited to `warmup`, `working`, or `drop`, default `working` (sets logged before the column existed also become `working`).
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.

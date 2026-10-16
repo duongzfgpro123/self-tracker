@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M4-006 (rest time on set_log), awaiting user verification; M3 tasks also await verification. Tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M4-007, add set type to set_log (task queue: [docs/tasks/M4.md](docs/tasks/M4.md)).
+- Stage 5 implementation through M4-007 (set type on set_log), awaiting user verification; M3 tasks also await verification. Tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M4-008, workout repository: create and read (task queue: [docs/tasks/M4.md](docs/tasks/M4.md)).

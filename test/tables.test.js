@@ -338,3 +338,40 @@ test("set_log rest_seconds accepts zero or more or null", () => {
     closeDatabase(database);
   }
 });
+
+test("set_log set_type defaults to working, also for rows that existed before the column", () => {
+  const database = openDatabase(":memory:");
+  const typeMigration = migrations.find(({ name }) => name === "set_log_type");
+
+  try {
+    ensureSchemaVersionTable(database);
+    runMigrations(
+      database,
+      migrations.filter(({ version }) => version < typeMigration.version),
+    );
+    const { workoutExerciseId } = insertWorkoutSlot(database);
+    database
+      .prepare("INSERT INTO set_log (workout_exercise_id, set_number, reps, created_at) VALUES (?, 1, 8, ?)")
+      .run(workoutExerciseId, NOW);
+
+    runMigrations(database, migrations);
+    assert.equal(database.prepare("SELECT set_type FROM set_log WHERE set_number = 1").get().set_type, "working");
+
+    const insertSet = database.prepare(
+      "INSERT INTO set_log (workout_exercise_id, set_number, reps, set_type, created_at) VALUES (?, ?, 8, ?, ?)",
+    );
+    insertSet.run(workoutExerciseId, 2, "warmup", NOW);
+    insertSet.run(workoutExerciseId, 3, "drop", NOW);
+    database
+      .prepare("INSERT INTO set_log (workout_exercise_id, set_number, reps, created_at) VALUES (?, 4, 8, ?)")
+      .run(workoutExerciseId, NOW);
+    assert.deepEqual(
+      database.prepare("SELECT set_type FROM set_log ORDER BY set_number").all().map(({ set_type }) => set_type),
+      ["working", "warmup", "drop", "working"],
+    );
+
+    assert.throws(() => insertSet.run(workoutExerciseId, 5, "failure", NOW), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
