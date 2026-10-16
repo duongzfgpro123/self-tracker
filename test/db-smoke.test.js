@@ -8,7 +8,15 @@ const { runMigrations } = require("../src/main/db/migrate");
 const migrations = require("../src/main/db/migrations");
 const { ensureSchemaVersionTable, getSchemaVersion } = require("../src/main/db/schema");
 
-const EXPECTED_TABLES = ["exercise", "exercise_muscle", "goal", "muscle", "schema_version", "user_profile"];
+const EXPECTED_TABLES = [
+  "exercise",
+  "exercise_muscle",
+  "goal",
+  "muscle",
+  "schema_version",
+  "user_profile",
+  "workout",
+];
 const NOW = "2026-10-16T00:00:00.000Z";
 
 function openMigratedDatabase(location) {

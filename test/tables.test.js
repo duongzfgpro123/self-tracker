@@ -155,3 +155,31 @@ test("muscle seed inserts exactly 21 muscles and is safe to re-run", () => {
     closeDatabase(database);
   }
 });
+
+test("workout rejects blank names, malformed dates, and negative durations", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const insertWorkout = database.prepare(
+      "INSERT INTO workout (name, workout_date, duration_seconds, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+    );
+    const { lastInsertRowid } = insertWorkout.run("Push day", "2026-10-16", 3600, NOW, NOW);
+    assert.equal(
+      database.prepare("SELECT workout_date FROM workout WHERE id = ?").get(lastInsertRowid).workout_date,
+      "2026-10-16",
+    );
+    insertWorkout.run("No duration yet", "2026-10-17", null, NOW, NOW);
+
+    assert.throws(() => insertWorkout.run("   ", "2026-10-16", null, NOW, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertWorkout.run("Push day", "16/10/2026", null, NOW, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertWorkout.run("Push day", "2026-10-16", -1, NOW, NOW), /CHECK constraint failed/);
+
+    const indexedColumns = database
+      .prepare("PRAGMA index_info(workout_workout_date_idx)")
+      .all()
+      .map(({ name }) => name);
+    assert.deepEqual(indexedColumns, ["workout_date"]);
+  } finally {
+    closeDatabase(database);
+  }
+});

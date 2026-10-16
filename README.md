@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-014, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M4-001, create the Workout table (M3 tasks await user verification).
+- Stage 5 implementation through M4-001 (workout table), awaiting user verification; M3 tasks also await verification. Tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M4-002, create the workout_exercise table (task queue: [docs/tasks/M4.md](docs/tasks/M4.md)).
