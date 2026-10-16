@@ -225,3 +225,46 @@ test("workout_exercise enforces links and positions, cascades workout deletes, a
     closeDatabase(database);
   }
 });
+
+function insertWorkoutSlot(database) {
+  const workoutId = database
+    .prepare("INSERT INTO workout (name, workout_date, created_at, updated_at) VALUES (?, ?, ?, ?)")
+    .run("Push day", "2026-10-16", NOW, NOW).lastInsertRowid;
+  const exerciseId = database
+    .prepare("INSERT INTO exercise (name, created_at) VALUES (?, ?)")
+    .run("Test exercise", NOW).lastInsertRowid;
+  const workoutExerciseId = database
+    .prepare("INSERT INTO workout_exercise (workout_id, exercise_id, position) VALUES (?, ?, 1)")
+    .run(workoutId, exerciseId).lastInsertRowid;
+  return { workoutId, workoutExerciseId };
+}
+
+test("set_log rejects negative reps and weight and duplicate set numbers, and follows workout deletes", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const { workoutId, workoutExerciseId } = insertWorkoutSlot(database);
+    const insertSet = database.prepare(
+      "INSERT INTO set_log (workout_exercise_id, set_number, reps, weight_kg, created_at) VALUES (?, ?, ?, ?, ?)",
+    );
+    const countSets = () => database.prepare("SELECT COUNT(*) AS count FROM set_log").get().count;
+
+    insertSet.run(workoutExerciseId, 1, 8, 60, NOW);
+    const bodyweightId = database
+      .prepare("INSERT INTO set_log (workout_exercise_id, set_number, reps, created_at) VALUES (?, 2, 12, ?)")
+      .run(workoutExerciseId, NOW).lastInsertRowid;
+    assert.equal(database.prepare("SELECT weight_kg FROM set_log WHERE id = ?").get(bodyweightId).weight_kg, 0);
+
+    assert.throws(() => insertSet.run(workoutExerciseId, 3, -1, 60, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertSet.run(workoutExerciseId, 3, 8, -2.5, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertSet.run(workoutExerciseId, 0, 8, 60, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertSet.run(workoutExerciseId, 1, 8, 60, NOW), /UNIQUE constraint failed/);
+    assert.throws(() => insertSet.run(9999, 3, 8, 60, NOW), /FOREIGN KEY constraint failed/);
+    assert.equal(countSets(), 2);
+
+    database.prepare("DELETE FROM workout WHERE id = ?").run(workoutId);
+    assert.equal(countSets(), 0);
+  } finally {
+    closeDatabase(database);
+  }
+});

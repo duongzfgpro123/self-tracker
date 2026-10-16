@@ -23,6 +23,7 @@
 │   │   │   │   ├── 006-seed-muscles.js
 │   │   │   │   ├── 007-workout.js
 │   │   │   │   ├── 008-workout-exercise.js
+│   │   │   │   ├── 009-set-log.js
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
@@ -82,6 +83,7 @@
 - Migration 006 seeds 21 muscles with `INSERT OR IGNORE`, so re-running its SQL adds no duplicates: Chest 1, Back 4, Shoulders 3, Arms 4, Legs 7, Core 2.
 - Migration 007 creates `workout`: one performed training session with a required non-blank `name`, a required `workout_date` in `YYYY-MM-DD` form, optional `started_at`, `ended_at`, `notes`, and `duration_seconds` (must be `0` or more when set), and ISO-text `created_at`/`updated_at`. The `workout_workout_date_idx` index supports history lists by date.
 - Migration 008 creates `workout_exercise`: one exercise slot inside a workout (the roadmap's "WorkoutSession" table). `position` starts at `1` and is unique within a workout. Deleting a workout deletes its slots (`ON DELETE CASCADE`); deleting an exercise that has been used in a workout is rejected (`ON DELETE RESTRICT`). The `workout_exercise_exercise_id_idx` index supports lookups by exercise.
+- Migration 009 creates `set_log`: one logged set for a workout slot, with `set_number` starting at `1` and unique within the slot, `reps` of `0` or more, `weight_kg` of `0` or more (default `0` for bodyweight sets), and ISO-text `created_at`. Weights are always stored in kilograms. Deleting a workout slot (and therefore a workout) deletes its sets (`ON DELETE CASCADE`).
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
@@ -95,7 +97,7 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 
 ## Planned
 
-- **Domain data access — planned:** Add further repositories and IPC channels in later M4 and M5 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout` and `workout_exercise` tables exist; only `muscle` has seeded data. The M4 task queue is in `docs/tasks/M4.md`.
+- **Domain data access — planned:** Add further repositories and IPC channels in later M4 and M5 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout`, `workout_exercise`, and `set_log` tables exist; only `muscle` has seeded data. The M4 task queue is in `docs/tasks/M4.md`.
 
 ## Decisions
 

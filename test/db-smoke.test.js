@@ -14,6 +14,7 @@ const EXPECTED_TABLES = [
   "goal",
   "muscle",
   "schema_version",
+  "set_log",
   "user_profile",
   "workout",
   "workout_exercise",

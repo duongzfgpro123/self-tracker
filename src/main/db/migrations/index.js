@@ -7,4 +7,5 @@ module.exports = [
   require("./006-seed-muscles"),
   require("./007-workout"),
   require("./008-workout-exercise"),
+  require("./009-set-log"),
 ];
