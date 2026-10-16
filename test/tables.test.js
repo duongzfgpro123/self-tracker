@@ -4,6 +4,7 @@ const { closeDatabase, openDatabase } = require("../src/main/db/connection");
 const { runMigrations } = require("../src/main/db/migrate");
 const migrations = require("../src/main/db/migrations");
 const { ensureSchemaVersionTable } = require("../src/main/db/schema");
+const { validateExerciseImport } = require("../src/main/db/exercise-format");
 
 const NOW = "2026-10-16T00:00:00.000Z";
 
@@ -371,6 +372,40 @@ test("set_log set_type defaults to working, also for rows that existed before th
     );
 
     assert.throws(() => insertSet.run(workoutExerciseId, 5, "failure", NOW), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
+
+test("exercise seed inserts 30 valid built-in exercises and is safe to re-run", () => {
+  const database = createMigratedDatabase();
+  const seedMigration = migrations.find(({ name }) => name === "seed_exercises");
+  const countExercises = () => database.prepare("SELECT COUNT(*) AS count FROM exercise").get().count;
+
+  try {
+    assert.equal(countExercises(), 30);
+    assert.equal(validateExerciseImport(seedMigration.seedFile).length, 30);
+
+    const rows = database
+      .prepare("SELECT name, movement_pattern, equipment, difficulty, instructions, common_mistakes, is_custom, created_at FROM exercise")
+      .all();
+    assert.ok(rows.every(({ is_custom }) => is_custom === 0));
+    assert.ok(rows.every(({ instructions, common_mistakes }) => instructions === null && common_mistakes === null));
+    assert.ok(rows.every(({ created_at }) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(created_at)));
+    const { created_at, ...carry } = rows.find(({ name }) => name === "Farmer's carry");
+    assert.deepEqual(carry, {
+      name: "Farmer's carry",
+      movement_pattern: "carry",
+      equipment: "dumbbell",
+      difficulty: "beginner",
+      instructions: null,
+      common_mistakes: null,
+      is_custom: 0,
+    });
+    assert.equal(database.prepare("SELECT COUNT(*) AS count FROM exercise_muscle").get().count, 0);
+
+    database.exec(seedMigration.sql);
+    assert.equal(countExercises(), 30);
   } finally {
     closeDatabase(database);
   }

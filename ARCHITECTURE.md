@@ -35,6 +35,7 @@
 │   │   │   │   ├── 011-set-log-rir.js
 │   │   │   │   ├── 012-set-log-rest.js
 │   │   │   │   ├── 013-set-log-type.js
+│   │   │   │   ├── 014-seed-exercises.js
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
@@ -104,13 +105,14 @@
 - Migration 011 adds `set_log.rir`: optional whole-number reps in reserve from `0` to `10`.
 - Migration 012 adds `set_log.rest_seconds`: optional rest taken after the set, in seconds (`0` or more).
 - Migration 013 adds `set_log.set_type`: required, limited to `warmup`, `working`, or `drop`, default `working` (sets logged before the column existed also become `working`).
+- Migration 014 seeds 30 built-in exercises (`is_custom` `0`) with `INSERT OR IGNORE`, so re-running its SQL adds no duplicates. Each has a name, movement pattern, equipment, and a starting difficulty label; `instructions`, `common_mistakes`, and muscle links stay empty until they can be added with sources (M5-003, M5-007, M5-012). The data is kept inside the migration file in the exercise import format (exported as `seedFile`) so an applied migration never changes.
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
 - `test/schema.test.js` checks schema_version columns, idempotent creation, and schema-version lookup.
 - `test/migrate.test.js` checks migration ordering, skipping applied migrations, rollback on failure, and rejection of a newer database version.
 - `test/db-handlers.test.js` checks the registered IPC channels and their results with a fake `ipcMain`, and the closed-database error.
-- `test/db-smoke.test.js` migrates a temporary file database, checks every expected table, newest schema version, 21 seeded muscles, and foreign-key enforcement, then closes and reopens it to confirm data persists and no migration is re-applied. The temporary directory is deleted afterwards.
+- `test/db-smoke.test.js` migrates a temporary file database, checks every expected table, newest schema version, 21 seeded muscles, 30 seeded exercises, and foreign-key enforcement, then closes and reopens it to confirm data persists and no migration is re-applied. The temporary directory is deleted afterwards.
 - `test/exercise-format.test.js` checks the exercise import validator: a valid file, file, exercise, and muscle-link rules, and that all problems are reported together.
 - `test/tables.test.js` runs the real migration list on an in-memory database and checks each domain table's constraints.
 - `test/workouts.test.js` checks the workout repository: create and nested read order, list order and counts, validation messages, missing ids, and that failed writes leave no partial rows.
@@ -119,7 +121,7 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 
 ## Planned
 
-- **Domain data access — planned:** Add workout IPC channels and screens (M4-009 onward) and the exercise library (M5). The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout`, `workout_exercise`, and `set_log` tables exist; only `muscle` has seeded data, so exercises must be seeded (M5-002) before a workout can pick one in the UI. The M4 task queue is in `docs/tasks/M4.md`.
+- **Domain data access — planned:** Add workout IPC channels and screens (M4-009 onward) and the exercise library (M5). The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout`, `workout_exercise`, and `set_log` tables exist; `muscle` and `exercise` have seeded data (exercises have no muscle links yet). The M4 task queue is in `docs/tasks/M4.md`.
 
 ## Decisions
 

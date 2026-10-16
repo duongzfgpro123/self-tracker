@@ -54,8 +54,8 @@ test("createWorkout stores a trimmed workout and returns it with no exercises", 
 
 test("getWorkout returns exercises by position and sets by set number", () => {
   withDatabase((database) => {
-    const bench = insertExercise(database, "Bench press");
-    const dip = insertExercise(database, "Dip");
+    const bench = insertExercise(database, "Test bench press");
+    const dip = insertExercise(database, "Test dip");
     const { id: workoutId } = createWorkout(database, { name: "Push day", workout_date: "2026-10-16" }, NOW);
 
     const benchSlot = addExerciseToWorkout(database, workoutId, bench, "Pause reps", NOW);
@@ -75,8 +75,8 @@ test("getWorkout returns exercises by position and sets by set number", () => {
     assert.deepEqual(
       workout.exercises.map(({ exercise_name, position, notes }) => ({ exercise_name, position, notes })),
       [
-        { exercise_name: "Bench press", position: 1, notes: "Pause reps" },
-        { exercise_name: "Dip", position: 2, notes: null },
+        { exercise_name: "Test bench press", position: 1, notes: "Pause reps" },
+        { exercise_name: "Test dip", position: 2, notes: null },
       ],
     );
     assert.deepEqual(
@@ -104,7 +104,7 @@ test("getWorkout returns exercises by position and sets by set number", () => {
 
 test("listWorkouts orders newest date first and counts exercises and sets", () => {
   withDatabase((database) => {
-    const squat = insertExercise(database, "Back squat");
+    const squat = insertExercise(database, "Test squat");
     const older = createWorkout(database, { name: "Legs", workout_date: "2026-10-14" }, NOW);
     const newer = createWorkout(database, { name: "Push", workout_date: "2026-10-16" }, NOW);
     const sameDay = createWorkout(database, { name: "Evening", workout_date: "2026-10-16" }, NOW);
@@ -123,7 +123,7 @@ test("listWorkouts orders newest date first and counts exercises and sets", () =
 
 test("workout repository rejects invalid input with clear messages before writing", () => {
   withDatabase((database) => {
-    const exerciseId = insertExercise(database, "Bench press");
+    const exerciseId = insertExercise(database, "Test bench press");
     const { id: workoutId } = createWorkout(database, { name: "Push", workout_date: "2026-10-16" }, NOW);
     const slot = addExerciseToWorkout(database, workoutId, exerciseId, null, NOW);
 
@@ -152,7 +152,7 @@ test("workout repository rejects invalid input with clear messages before writin
 
 test("workout repository reports missing ids and leaves no partial rows", () => {
   withDatabase((database) => {
-    const exerciseId = insertExercise(database, "Bench press");
+    const exerciseId = insertExercise(database, "Test bench press");
     const { id: workoutId } = createWorkout(database, { name: "Push", workout_date: "2026-10-16" }, NOW);
 
     assert.equal(getWorkout(database, 9999), null);

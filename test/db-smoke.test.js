@@ -48,6 +48,7 @@ test("file database migrates fully and keeps data across reopen", () => {
     assert.deepEqual(tables, EXPECTED_TABLES);
     assert.equal(getSchemaVersion(database), newestVersion);
     assert.equal(count(database, "muscle"), 21);
+    assert.equal(count(database, "exercise"), 30);
 
     assert.throws(
       () =>
@@ -67,6 +68,7 @@ test("file database migrates fully and keeps data across reopen", () => {
     assert.equal(count(database, "schema_version"), appliedCount);
     assert.equal(getSchemaVersion(database), newestVersion);
     assert.equal(count(database, "muscle"), 21);
+    assert.equal(count(database, "exercise"), 30);
     assert.equal(
       database.prepare("SELECT display_name FROM user_profile WHERE id = 1").get().display_name,
       "Smoke tester",

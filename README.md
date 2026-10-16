@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M5-001 (exercise import format), awaiting user verification; M3 tasks also await verification. Tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M5-002, seed 30 core exercises (task queue: [docs/tasks/M5.md](docs/tasks/M5.md)).
+- Stage 5 implementation through M5-002 (30 seeded exercises), awaiting user verification; M3 tasks also await verification. Tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M4-009, create workout screen (task queue: [docs/tasks/M4.md](docs/tasks/M4.md)).

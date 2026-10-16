@@ -12,4 +12,5 @@ module.exports = [
   require("./011-set-log-rir"),
   require("./012-set-log-rest"),
   require("./013-set-log-type"),
+  require("./014-seed-exercises"),
 ];
