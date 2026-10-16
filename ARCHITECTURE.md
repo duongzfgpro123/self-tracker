@@ -16,6 +16,7 @@
 │   │   │   ├── migrate.js
 │   │   │   ├── migrations/
 │   │   │   │   ├── 001-user-profile.js
+│   │   │   │   ├── 002-goal.js
 │   │   │   │   └── index.js
 │   │   │   ├── probe.js
 │   │   │   └── schema.js
@@ -61,6 +62,7 @@
 - `src/main/db/schema.js` creates `schema_version(version INTEGER NOT NULL, name TEXT NOT NULL, applied_at TEXT NOT NULL)` idempotently. `getSchemaVersion` returns the highest recorded version, or `0` when the table has no rows. The main process ensures the table at startup.
 - `src/main/db/migrate.js` sorts migrations by version, skips versions already recorded in `schema_version`, and applies each pending migration in its own transaction. It records the migration name, version, and ISO timestamp, rolls back a failed migration, and rejects databases newer than the known migration list. `src/main/db/migrations/index.js` exports the ordered migration list; each migration lives in its own `NNN-name.js` file.
 - Migration 001 creates `user_profile`: a single-row table (`id` must be `1`) with optional `display_name`, `units` limited to `kg` or `lb` (default `kg`), and ISO-text `created_at`/`updated_at`.
+- Migration 002 creates `goal`: `type` limited to `muscle_gain`, `maintenance`, `fat_loss`, or `general_health`; optional `target_weight_kg`, `end_date`, and `notes`; required `start_date` and `created_at`; and `is_active` limited to `0` or `1` (default `1`).
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
@@ -72,7 +74,7 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 
 ## Planned
 
-- **Domain schema and data access — planned:** Add the remaining domain tables, repositories, and safe preload access in later M3 tasks. Only `user_profile` exists so far.
+- **Domain schema and data access — planned:** Add the remaining domain tables, repositories, and safe preload access in later M3 tasks. Only `user_profile` and `goal` exist so far.
 
 ## Decisions
 

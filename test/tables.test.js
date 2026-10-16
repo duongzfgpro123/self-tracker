@@ -36,3 +36,21 @@ test("user_profile allows only id 1 and known units", () => {
     closeDatabase(database);
   }
 });
+
+test("goal rejects unknown types and allows a null target weight", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const insertGoal = database.prepare(
+      "INSERT INTO goal (type, target_weight_kg, start_date, created_at) VALUES (?, ?, ?, ?)",
+    );
+    const { lastInsertRowid } = insertGoal.run("general_health", null, "2026-10-16", NOW);
+    const goal = database.prepare("SELECT target_weight_kg, is_active FROM goal WHERE id = ?").get(lastInsertRowid);
+    assert.equal(goal.target_weight_kg, null);
+    assert.equal(goal.is_active, 1);
+
+    assert.throws(() => insertGoal.run("bulking", 80, "2026-10-16", NOW), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
