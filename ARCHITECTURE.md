@@ -21,8 +21,11 @@
 │   │   │   │   ├── 004-exercise.js
 │   │   │   │   ├── 005-exercise-muscle.js
 │   │   │   │   └── index.js
+│   │   │   ├── muscles.js
 │   │   │   ├── probe.js
 │   │   │   └── schema.js
+│   │   ├── ipc/
+│   │   │   └── db-handlers.js
 │   │   ├── logger.js
 │   │   └── main.js
 │   ├── preload/
@@ -35,6 +38,7 @@
 │       └── .gitkeep
 ├── test/
 │   ├── connection.test.js
+│   ├── db-handlers.test.js
 │   ├── migrate.test.js
 │   ├── schema.test.js
 │   ├── smoke.test.js
@@ -50,9 +54,11 @@
 ## Implemented
 
 - `package.json` sets `src/main/main.js` as the Electron entry point. The `start` script launches Electron; `test` uses Node's built-in test runner.
-- `src/main/main.js` owns the Electron app lifecycle and creates the 900x700 `BrowserWindow`. It loads `src/renderer/index.html`, sets the app icon from `assets/icon.png`, and logs uncaught exceptions, unhandled rejections, renderer-process termination, and database lifecycle events. At startup it opens `userData/self-tracker.db`, ensures the schema version table, and runs known migrations. If database initialization fails it logs the error, shows an error dialog, and quits.
+- `src/main/main.js` owns the Electron app lifecycle and creates the 900x700 `BrowserWindow`. It loads `src/renderer/index.html`, sets the app icon from `assets/icon.png`, and logs uncaught exceptions, unhandled rejections, renderer-process termination, and database lifecycle events. At startup it opens `userData/self-tracker.db`, ensures the schema version table, runs known migrations, and registers the database IPC handlers before creating the window. If database initialization fails it logs the error, shows an error dialog, and quits.
 - The window uses `contextIsolation: true`, `nodeIntegration: false`, and `sandbox: true`. Its preload is `src/preload/preload.js`.
-- `src/preload/preload.js` uses `contextBridge` to expose only `window.appInfo = { name: "Self Tracker" }` to the renderer.
+- `src/preload/preload.js` uses `contextBridge` to expose `window.appInfo = { name: "Self Tracker" }` and `window.api`. `window.api.db.getSchemaVersion()` and `window.api.muscles.list()` each call `ipcRenderer.invoke` on one fixed channel and return a promise. SQL, the database object, and `ipcRenderer` are never exposed to the renderer.
+- `src/main/ipc/db-handlers.js` registers the `ipcMain.handle` channels `db:schemaVersion` (highest applied migration version) and `muscles:list` (muscle rows as `{ id, name, group_name }`, ordered by group and name). The main process registers them after the database opens; a handler called without an open database rejects with "Database is not open.".
+- `src/main/db/muscles.js` holds the muscle list query so database code stays in `src/main/db/`.
 - `src/renderer/index.html` contains the navigation shell and page markup. It loads `styles.css` and loads `renderer.js` with `defer`.
 - `src/renderer/renderer.js` switches among the 15 navigation sections and owns the Workouts form and history rendering. Workout entries are stored in renderer `localStorage` under the key `entries` as JSON records with `date`, `muscle`, and `intensity` fields. This is the current persistence implementation.
 - `src/renderer/styles.css` contains the renderer's layout and responsive styles.
@@ -74,13 +80,14 @@
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
 - `test/schema.test.js` checks schema_version columns, idempotent creation, and schema-version lookup.
 - `test/migrate.test.js` checks migration ordering, skipping applied migrations, rollback on failure, and rejection of a newer database version.
+- `test/db-handlers.test.js` checks the registered IPC channels and their results with a fake `ipcMain`, and the closed-database error.
 - `test/tables.test.js` runs the real migration list on an in-memory database and checks each domain table's constraints.
 
 On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\app.log`. The application code resolves the location from Electron's `userData` path rather than hard-coding this Windows path.
 
 ## Planned
 
-- **Domain data access — planned:** Add safe preload access, the muscle seed, and repositories in later M3 and M4 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) exist but contain no seeded data yet.
+- **Domain data access — planned:** Add the muscle seed and further repositories and IPC channels in later M3 and M4 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) exist but contain no seeded data yet.
 
 ## Decisions
 

@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-011, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-012, expose a safe database API through preload.
+- Stage 5 implementation through M3-012, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-013, seed the muscle list.

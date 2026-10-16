@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
 const { createLogger } = require("./logger");
@@ -7,6 +7,7 @@ const { closeDatabase, openDatabase } = require("./db/connection");
 const { ensureSchemaVersionTable } = require("./db/schema");
 const { runMigrations } = require("./db/migrate");
 const migrations = require("./db/migrations");
+const { registerDbHandlers } = require("./ipc/db-handlers");
 
 const logger = createLogger(() => app.getPath("userData"));
 let database;
@@ -63,6 +64,7 @@ app.whenReady().then(() => {
   }
 
   logger.logInfo("Database opened", databasePath);
+  registerDbHandlers(ipcMain, () => database);
   createWindow();
 });
 
