@@ -68,3 +68,23 @@ test("muscle rejects duplicate names and unknown groups", () => {
     closeDatabase(database);
   }
 });
+
+test("exercise rejects unknown difficulty and duplicate names", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const insertExercise = database.prepare(
+      "INSERT INTO exercise (name, difficulty, created_at) VALUES (?, ?, ?)",
+    );
+    const { lastInsertRowid } = insertExercise.run("Test exercise", "beginner", NOW);
+    assert.equal(
+      database.prepare("SELECT is_custom FROM exercise WHERE id = ?").get(lastInsertRowid).is_custom,
+      0,
+    );
+
+    assert.throws(() => insertExercise.run("Other exercise", "expert", NOW), /CHECK constraint failed/);
+    assert.throws(() => insertExercise.run("Test exercise", "advanced", NOW), /UNIQUE constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});

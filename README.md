@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-009, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-010, create the Exercise table.
+- Stage 5 implementation through M3-010, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M3-011, create the ExerciseMuscle relation table.
