@@ -1,0 +1,1 @@
+Project rules: follow .github/copilot-instructions.md. Task queue: docs/tasks/M3.md. To resume: take the first task in docs/tasks/M3.md whose status in stage5-progress.html is not WAITING FOR USER or DONE, and continue the loop from there.
