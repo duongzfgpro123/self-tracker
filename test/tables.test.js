@@ -54,3 +54,17 @@ test("goal rejects unknown types and allows a null target weight", () => {
     closeDatabase(database);
   }
 });
+
+test("muscle rejects duplicate names and unknown groups", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const insertMuscle = database.prepare("INSERT INTO muscle (name, group_name) VALUES (?, ?)");
+    insertMuscle.run("Test muscle", "Chest");
+
+    assert.throws(() => insertMuscle.run("Test muscle", "Back"), /UNIQUE constraint failed/);
+    assert.throws(() => insertMuscle.run("Another muscle", "Neck"), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
