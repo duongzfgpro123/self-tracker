@@ -9,10 +9,17 @@
 ├── assets/
 │   ├── .gitkeep
 │   └── icon.png
+├── docs/
+│   ├── exercise-import-format.md
+│   └── tasks/
+│       ├── M3.md
+│       ├── M4.md
+│       └── M5.md
 ├── src/
 │   ├── main/
 │   │   ├── db/
 │   │   │   ├── connection.js
+│   │   │   ├── exercise-format.js
 │   │   │   ├── migrate.js
 │   │   │   ├── migrations/
 │   │   │   │   ├── 001-user-profile.js
@@ -49,6 +56,7 @@
 │   ├── connection.test.js
 │   ├── db-handlers.test.js
 │   ├── db-smoke.test.js
+│   ├── exercise-format.test.js
 │   ├── migrate.test.js
 │   ├── schema.test.js
 │   ├── smoke.test.js
@@ -70,6 +78,7 @@
 - `src/preload/preload.js` uses `contextBridge` to expose `window.appInfo = { name: "Self Tracker" }` and `window.api`. `window.api.db.getSchemaVersion()` and `window.api.muscles.list()` each call `ipcRenderer.invoke` on one fixed channel and return a promise. SQL, the database object, and `ipcRenderer` are never exposed to the renderer.
 - `src/main/ipc/db-handlers.js` registers the `ipcMain.handle` channels `db:schemaVersion` (highest applied migration version) and `muscles:list` (muscle rows as `{ id, name, group_name }`, ordered by group and name). The main process registers them after the database opens; a handler called without an open database rejects with "Database is not open.".
 - `src/main/db/muscles.js` holds the muscle list query so database code stays in `src/main/db/`.
+- `src/main/db/exercise-format.js` defines version 1 of the exercise import JSON format (documented in `docs/exercise-import-format.md`): the allowed movement patterns, equipment, difficulties, and muscle roles, and `validateExerciseImport`, a pure function that returns normalised exercises or throws one error listing every problem with its path. It rejects unknown keys and, when given the known muscle names, unknown muscles.
 - `src/main/db/workouts.js` is the workout repository. `createWorkout`, `addExerciseToWorkout` (appends the next `position`), and `addSet` (appends the next `set_number`; defaults `weight_kg` to `0` and `set_type` to `working`) validate their input in JavaScript and throw clear errors before any SQL runs; multi-row writes run in one transaction and refresh the workout's `updated_at`. `getWorkout` returns a workout with its exercises (by position, with exercise name) and their sets (by set number), or `null`. `listWorkouts` returns workouts newest date first with `exercise_count` and `set_count`. Every write accepts an optional ISO `now` for tests. It is not exposed over IPC yet.
 - `src/renderer/index.html` contains the navigation shell and page markup. It loads `styles.css` and loads `renderer.js` with `defer`.
 - `src/renderer/renderer.js` switches among the 15 navigation sections and owns the Workouts form and history rendering. Workout entries are stored in renderer `localStorage` under the key `entries` as JSON records with `date`, `muscle`, and `intensity` fields. This is the current persistence implementation.
@@ -102,6 +111,7 @@
 - `test/migrate.test.js` checks migration ordering, skipping applied migrations, rollback on failure, and rejection of a newer database version.
 - `test/db-handlers.test.js` checks the registered IPC channels and their results with a fake `ipcMain`, and the closed-database error.
 - `test/db-smoke.test.js` migrates a temporary file database, checks every expected table, newest schema version, 21 seeded muscles, and foreign-key enforcement, then closes and reopens it to confirm data persists and no migration is re-applied. The temporary directory is deleted afterwards.
+- `test/exercise-format.test.js` checks the exercise import validator: a valid file, file, exercise, and muscle-link rules, and that all problems are reported together.
 - `test/tables.test.js` runs the real migration list on an in-memory database and checks each domain table's constraints.
 - `test/workouts.test.js` checks the workout repository: create and nested read order, list order and counts, validation messages, missing ids, and that failed writes leave no partial rows.
 
