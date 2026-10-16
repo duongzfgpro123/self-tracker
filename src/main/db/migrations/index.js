@@ -10,4 +10,5 @@ module.exports = [
   require("./009-set-log"),
   require("./010-set-log-rpe"),
   require("./011-set-log-rir"),
+  require("./012-set-log-rest"),
 ];

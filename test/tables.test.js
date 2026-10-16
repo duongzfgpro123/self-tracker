@@ -316,3 +316,25 @@ test("set_log rir accepts 0 to 10 or null", () => {
     closeDatabase(database);
   }
 });
+
+test("set_log rest_seconds accepts zero or more or null", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const { workoutExerciseId } = insertWorkoutSlot(database);
+    const insertSet = database.prepare(
+      "INSERT INTO set_log (workout_exercise_id, set_number, reps, rest_seconds, created_at) VALUES (?, ?, 8, ?, ?)",
+    );
+
+    insertSet.run(workoutExerciseId, 1, 90, NOW);
+    insertSet.run(workoutExerciseId, 2, null, NOW);
+    assert.deepEqual(
+      database.prepare("SELECT rest_seconds FROM set_log ORDER BY set_number").all().map((row) => row.rest_seconds),
+      [90, null],
+    );
+
+    assert.throws(() => insertSet.run(workoutExerciseId, 3, -5, NOW), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
