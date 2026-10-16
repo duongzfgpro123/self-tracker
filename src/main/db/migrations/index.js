@@ -9,4 +9,5 @@ module.exports = [
   require("./008-workout-exercise"),
   require("./009-set-log"),
   require("./010-set-log-rpe"),
+  require("./011-set-log-rir"),
 ];

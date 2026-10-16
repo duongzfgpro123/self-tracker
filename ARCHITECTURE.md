@@ -25,6 +25,7 @@
 │   │   │   │   ├── 008-workout-exercise.js
 │   │   │   │   ├── 009-set-log.js
 │   │   │   │   ├── 010-set-log-rpe.js
+│   │   │   │   ├── 011-set-log-rir.js
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
@@ -86,6 +87,7 @@
 - Migration 008 creates `workout_exercise`: one exercise slot inside a workout (the roadmap's "WorkoutSession" table). `position` starts at `1` and is unique within a workout. Deleting a workout deletes its slots (`ON DELETE CASCADE`); deleting an exercise that has been used in a workout is rejected (`ON DELETE RESTRICT`). The `workout_exercise_exercise_id_idx` index supports lookups by exercise.
 - Migration 009 creates `set_log`: one logged set for a workout slot, with `set_number` starting at `1` and unique within the slot, `reps` of `0` or more, `weight_kg` of `0` or more (default `0` for bodyweight sets), and ISO-text `created_at`. Weights are always stored in kilograms. Deleting a workout slot (and therefore a workout) deletes its sets (`ON DELETE CASCADE`).
 - Migration 010 adds `set_log.rpe`: optional rate of perceived exertion from `1` to `10` in half steps (for example `8` or `8.5`).
+- Migration 011 adds `set_log.rir`: optional whole-number reps in reserve from `0` to `10`.
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.

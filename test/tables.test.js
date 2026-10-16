@@ -293,3 +293,26 @@ test("set_log rpe accepts half steps from 1 to 10 or null", () => {
     closeDatabase(database);
   }
 });
+
+test("set_log rir accepts 0 to 10 or null", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const { workoutExerciseId } = insertWorkoutSlot(database);
+    const insertSet = database.prepare(
+      "INSERT INTO set_log (workout_exercise_id, set_number, reps, rir, created_at) VALUES (?, ?, 8, ?, ?)",
+    );
+
+    insertSet.run(workoutExerciseId, 1, 0, NOW);
+    insertSet.run(workoutExerciseId, 2, null, NOW);
+    assert.deepEqual(
+      database.prepare("SELECT rir FROM set_log ORDER BY set_number").all().map(({ rir }) => rir),
+      [0, null],
+    );
+
+    assert.throws(() => insertSet.run(workoutExerciseId, 3, -1, NOW), /CHECK constraint failed/);
+    assert.throws(() => insertSet.run(workoutExerciseId, 3, 11, NOW), /CHECK constraint failed/);
+  } finally {
+    closeDatabase(database);
+  }
+});
