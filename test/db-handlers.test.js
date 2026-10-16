@@ -23,17 +23,19 @@ test("database IPC handlers return the schema version and muscle list", () => {
   try {
     ensureSchemaVersionTable(database);
     runMigrations(database, migrations);
-    database
-      .prepare("INSERT INTO muscle (name, group_name) VALUES (?, ?), (?, ?)")
-      .run("Test calf", "Legs", "Test chest", "Chest");
     registerDbHandlers(ipcMain, () => database);
 
     assert.deepEqual([...ipcMain.handlers.keys()].sort(), ["db:schemaVersion", "muscles:list"]);
     assert.equal(ipcMain.handlers.get("db:schemaVersion")(), migrations.at(-1).version);
-    assert.deepEqual(ipcMain.handlers.get("muscles:list")(), [
-      { id: 2, name: "Test chest", group_name: "Chest" },
-      { id: 1, name: "Test calf", group_name: "Legs" },
-    ]);
+
+    const muscles = ipcMain.handlers.get("muscles:list")();
+    assert.equal(muscles.length, 21);
+    assert.deepEqual(Object.keys(muscles[0]), ["id", "name", "group_name"]);
+    assert.deepEqual(
+      muscles.map(({ name }) => name).slice(0, 2),
+      ["Biceps brachii", "Forearm extensors"],
+    );
+    assert.equal(muscles.at(-1).name, "Posterior deltoid");
   } finally {
     closeDatabase(database);
   }

@@ -127,3 +127,31 @@ test("exercise_muscle enforces links, cascades exercise deletes, and protects us
     closeDatabase(database);
   }
 });
+
+test("muscle seed inserts exactly 21 muscles and is safe to re-run", () => {
+  const database = createMigratedDatabase();
+  const seedMigration = migrations.find(({ name }) => name === "seed_muscles");
+  const countByGroup = () =>
+    Object.fromEntries(
+      database
+        .prepare("SELECT group_name, COUNT(*) AS count FROM muscle GROUP BY group_name")
+        .all()
+        .map(({ group_name, count }) => [group_name, count]),
+    );
+  const expectedCounts = { Arms: 4, Back: 4, Chest: 1, Core: 2, Legs: 7, Shoulders: 3 };
+
+  try {
+    assert.equal(database.prepare("SELECT COUNT(*) AS count FROM muscle").get().count, 21);
+    assert.deepEqual(countByGroup(), expectedCounts);
+    assert.equal(
+      database.prepare("SELECT group_name FROM muscle WHERE name = 'Gluteus medius'").get().group_name,
+      "Legs",
+    );
+
+    database.exec(seedMigration.sql);
+    assert.equal(database.prepare("SELECT COUNT(*) AS count FROM muscle").get().count, 21);
+    assert.deepEqual(countByGroup(), expectedCounts);
+  } finally {
+    closeDatabase(database);
+  }
+});

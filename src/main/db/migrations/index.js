@@ -4,4 +4,5 @@ module.exports = [
   require("./003-muscle"),
   require("./004-exercise"),
   require("./005-exercise-muscle"),
+  require("./006-seed-muscles"),
 ];
