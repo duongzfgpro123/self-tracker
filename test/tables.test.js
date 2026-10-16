@@ -88,3 +88,42 @@ test("exercise rejects unknown difficulty and duplicate names", () => {
     closeDatabase(database);
   }
 });
+
+test("exercise_muscle enforces links, cascades exercise deletes, and protects used muscles", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const exerciseId = database
+      .prepare("INSERT INTO exercise (name, created_at) VALUES (?, ?)")
+      .run("Test exercise", NOW).lastInsertRowid;
+    const muscleId = database
+      .prepare("INSERT INTO muscle (name, group_name) VALUES (?, ?)")
+      .run("Test muscle", "Legs").lastInsertRowid;
+    const insertLink = database.prepare(
+      "INSERT INTO exercise_muscle (exercise_id, muscle_id, role) VALUES (?, ?, ?)",
+    );
+    const countLinks = () => database.prepare("SELECT COUNT(*) AS count FROM exercise_muscle").get().count;
+
+    assert.throws(() => insertLink.run(exerciseId, 9999, "primary"), /FOREIGN KEY constraint failed/);
+    assert.throws(() => insertLink.run(9999, muscleId, "primary"), /FOREIGN KEY constraint failed/);
+    assert.throws(() => insertLink.run(exerciseId, muscleId, "helper"), /CHECK constraint failed/);
+
+    insertLink.run(exerciseId, muscleId, "primary");
+    assert.throws(
+      () => database.prepare("DELETE FROM muscle WHERE id = ?").run(muscleId),
+      /FOREIGN KEY constraint failed/,
+    );
+    assert.equal(countLinks(), 1);
+
+    database.prepare("DELETE FROM exercise WHERE id = ?").run(exerciseId);
+    assert.equal(countLinks(), 0);
+
+    const indexedColumns = database
+      .prepare("PRAGMA index_info(exercise_muscle_muscle_id_idx)")
+      .all()
+      .map(({ name }) => name);
+    assert.deepEqual(indexedColumns, ["muscle_id"]);
+  } finally {
+    closeDatabase(database);
+  }
+});

@@ -3,4 +3,5 @@ module.exports = [
   require("./002-goal"),
   require("./003-muscle"),
   require("./004-exercise"),
+  require("./005-exercise-muscle"),
 ];
