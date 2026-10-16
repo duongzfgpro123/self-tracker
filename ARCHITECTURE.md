@@ -20,6 +20,7 @@
 │   │   │   │   ├── 003-muscle.js
 │   │   │   │   ├── 004-exercise.js
 │   │   │   │   ├── 005-exercise-muscle.js
+│   │   │   │   ├── 006-seed-muscles.js
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
@@ -75,6 +76,7 @@
 - Migration 003 creates `muscle`: a unique required `name` and `group_name` limited to `Chest`, `Back`, `Shoulders`, `Arms`, `Legs`, or `Core`.
 - Migration 004 creates `exercise`: a unique required `name`; optional `movement_pattern`, `equipment`, `instructions`, and `common_mistakes`; optional `difficulty` limited to `beginner`, `intermediate`, or `advanced`; `is_custom` limited to `0` or `1` (default `0`); and required `created_at`.
 - Migration 005 creates `exercise_muscle`, linking exercises to muscles with `role` limited to `primary`, `secondary`, or `stabiliser`. Its primary key is `(exercise_id, muscle_id)`. Deleting an exercise deletes its links (`ON DELETE CASCADE`); deleting a muscle that is still linked is rejected (`ON DELETE RESTRICT`). The `exercise_muscle_muscle_id_idx` index supports lookups by muscle.
+- Migration 006 seeds 21 muscles with `INSERT OR IGNORE`, so re-running its SQL adds no duplicates: Chest 1, Back 4, Shoulders 3, Arms 4, Legs 7, Core 2.
 - `test/smoke.test.js` checks the start script and the configured main, preload, and renderer entry-point files.
 - `test/sqlite-available.test.js` checks that the SQLite probe returns a non-empty version string.
 - `test/connection.test.js` checks the foreign-key and busy-timeout pragmas and repeated close.
@@ -87,7 +89,7 @@ On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\ap
 
 ## Planned
 
-- **Domain data access — planned:** Add the muscle seed and further repositories and IPC channels in later M3 and M4 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) exist but contain no seeded data yet.
+- **Domain data access — planned:** Add further repositories and IPC channels in later M4 and M5 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) exist; only `muscle` has seeded data.
 
 ## Decisions
 
