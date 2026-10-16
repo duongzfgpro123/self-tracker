@@ -8,4 +8,5 @@ module.exports = [
   require("./007-workout"),
   require("./008-workout-exercise"),
   require("./009-set-log"),
+  require("./010-set-log-rpe"),
 ];

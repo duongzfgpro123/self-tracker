@@ -268,3 +268,28 @@ test("set_log rejects negative reps and weight and duplicate set numbers, and fo
     closeDatabase(database);
   }
 });
+
+test("set_log rpe accepts half steps from 1 to 10 or null", () => {
+  const database = createMigratedDatabase();
+
+  try {
+    const { workoutExerciseId } = insertWorkoutSlot(database);
+    const insertSet = database.prepare(
+      "INSERT INTO set_log (workout_exercise_id, set_number, reps, rpe, created_at) VALUES (?, ?, 8, ?, ?)",
+    );
+
+    insertSet.run(workoutExerciseId, 1, 8.5, NOW);
+    insertSet.run(workoutExerciseId, 2, null, NOW);
+    insertSet.run(workoutExerciseId, 3, 10, NOW);
+    assert.deepEqual(
+      database.prepare("SELECT rpe FROM set_log ORDER BY set_number").all().map(({ rpe }) => rpe),
+      [8.5, null, 10],
+    );
+
+    for (const badRpe of [0, 11, 7.3]) {
+      assert.throws(() => insertSet.run(workoutExerciseId, 4, badRpe, NOW), /CHECK constraint failed/);
+    }
+  } finally {
+    closeDatabase(database);
+  }
+});
