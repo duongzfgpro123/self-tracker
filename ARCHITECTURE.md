@@ -31,7 +31,8 @@
 │   │   │   │   └── index.js
 │   │   │   ├── muscles.js
 │   │   │   ├── probe.js
-│   │   │   └── schema.js
+│   │   │   ├── schema.js
+│   │   │   └── workouts.js
 │   │   ├── ipc/
 │   │   │   └── db-handlers.js
 │   │   ├── logger.js
@@ -52,7 +53,8 @@
 │   ├── schema.test.js
 │   ├── smoke.test.js
 │   ├── sqlite-available.test.js
-│   └── tables.test.js
+│   ├── tables.test.js
+│   └── workouts.test.js
 ├── .gitignore
 ├── package-lock.json
 ├── package.json
@@ -68,6 +70,7 @@
 - `src/preload/preload.js` uses `contextBridge` to expose `window.appInfo = { name: "Self Tracker" }` and `window.api`. `window.api.db.getSchemaVersion()` and `window.api.muscles.list()` each call `ipcRenderer.invoke` on one fixed channel and return a promise. SQL, the database object, and `ipcRenderer` are never exposed to the renderer.
 - `src/main/ipc/db-handlers.js` registers the `ipcMain.handle` channels `db:schemaVersion` (highest applied migration version) and `muscles:list` (muscle rows as `{ id, name, group_name }`, ordered by group and name). The main process registers them after the database opens; a handler called without an open database rejects with "Database is not open.".
 - `src/main/db/muscles.js` holds the muscle list query so database code stays in `src/main/db/`.
+- `src/main/db/workouts.js` is the workout repository. `createWorkout`, `addExerciseToWorkout` (appends the next `position`), and `addSet` (appends the next `set_number`; defaults `weight_kg` to `0` and `set_type` to `working`) validate their input in JavaScript and throw clear errors before any SQL runs; multi-row writes run in one transaction and refresh the workout's `updated_at`. `getWorkout` returns a workout with its exercises (by position, with exercise name) and their sets (by set number), or `null`. `listWorkouts` returns workouts newest date first with `exercise_count` and `set_count`. Every write accepts an optional ISO `now` for tests. It is not exposed over IPC yet.
 - `src/renderer/index.html` contains the navigation shell and page markup. It loads `styles.css` and loads `renderer.js` with `defer`.
 - `src/renderer/renderer.js` switches among the 15 navigation sections and owns the Workouts form and history rendering. Workout entries are stored in renderer `localStorage` under the key `entries` as JSON records with `date`, `muscle`, and `intensity` fields. This is the current persistence implementation.
 - `src/renderer/styles.css` contains the renderer's layout and responsive styles.
@@ -100,12 +103,13 @@
 - `test/db-handlers.test.js` checks the registered IPC channels and their results with a fake `ipcMain`, and the closed-database error.
 - `test/db-smoke.test.js` migrates a temporary file database, checks every expected table, newest schema version, 21 seeded muscles, and foreign-key enforcement, then closes and reopens it to confirm data persists and no migration is re-applied. The temporary directory is deleted afterwards.
 - `test/tables.test.js` runs the real migration list on an in-memory database and checks each domain table's constraints.
+- `test/workouts.test.js` checks the workout repository: create and nested read order, list order and counts, validation messages, missing ids, and that failed writes leave no partial rows.
 
 On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\app.log`. The application code resolves the location from Electron's `userData` path rather than hard-coding this Windows path.
 
 ## Planned
 
-- **Domain data access — planned:** Add further repositories and IPC channels in later M4 and M5 tasks. The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout`, `workout_exercise`, and `set_log` tables exist; only `muscle` has seeded data. The M4 task queue is in `docs/tasks/M4.md`.
+- **Domain data access — planned:** Add workout IPC channels and screens (M4-009 onward) and the exercise library (M5). The M3 core tables (`user_profile`, `goal`, `muscle`, `exercise`, `exercise_muscle`) and the M4 `workout`, `workout_exercise`, and `set_log` tables exist; only `muscle` has seeded data, so exercises must be seeded (M5-002) before a workout can pick one in the UI. The M4 task queue is in `docs/tasks/M4.md`.
 
 ## Decisions
 
