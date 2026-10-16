@@ -5,5 +5,5 @@
 
 ## Progress
 - Web prototype: Stages 1-4 complete.
-- Stage 5 implementation through M3-013, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
-- Next: M3-014, add the database smoke test.
+- Stage 5 implementation through M3-014, awaiting user verification; tracked in [stage5-progress.html](stage5-progress.html).
+- Next: M4-001, create the Workout table (M3 tasks await user verification).

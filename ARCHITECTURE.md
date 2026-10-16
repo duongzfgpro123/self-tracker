@@ -40,6 +40,7 @@
 ├── test/
 │   ├── connection.test.js
 │   ├── db-handlers.test.js
+│   ├── db-smoke.test.js
 │   ├── migrate.test.js
 │   ├── schema.test.js
 │   ├── smoke.test.js
@@ -83,6 +84,7 @@
 - `test/schema.test.js` checks schema_version columns, idempotent creation, and schema-version lookup.
 - `test/migrate.test.js` checks migration ordering, skipping applied migrations, rollback on failure, and rejection of a newer database version.
 - `test/db-handlers.test.js` checks the registered IPC channels and their results with a fake `ipcMain`, and the closed-database error.
+- `test/db-smoke.test.js` migrates a temporary file database, checks the six tables, newest schema version, 21 seeded muscles, and foreign-key enforcement, then closes and reopens it to confirm data persists and no migration is re-applied. The temporary directory is deleted afterwards.
 - `test/tables.test.js` runs the real migration list on an in-memory database and checks each domain table's constraints.
 
 On this Windows installation, the log file is at `%APPDATA%\self-tracker\logs\app.log`. The application code resolves the location from Electron's `userData` path rather than hard-coding this Windows path.
